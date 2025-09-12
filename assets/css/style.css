@@ -1640,10 +1640,10 @@ a:hover {
 
 /* Investment CTA Component Constraints */
 .post .investment-cta {
-    max-width: 100% !important;
+    max-width: 760px !important;
     box-sizing: border-box !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
 .post .investment-cta * {
@@ -1654,4 +1654,10 @@ a:hover {
 .post .cta-container {
     width: 100% !important;
     max-width: 100% !important;
+}
+
+@media (min-width: 1200px) {
+    .post .investment-cta {
+        max-width: 800px !important;
+    }
 }
