@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试页面 - NewSeaCall News</title>
+    
+    <!-- 重置样式文件 -->
+    <link rel="stylesheet" href="assets/css/reset.css">
+    
+    <!-- 主样式文件 -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        /* 调试样式 */
+        .debug-info {
+            background: #f0f0f0;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .debug-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 测试Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-brand">
+                <a href="/" class="brand-link">
+                    <div class="brand-logo">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z" fill="#3B82F6"/>
+                            <path d="M9 10L11 12L15 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">NewSeaCall 越南投资资讯</span>
+                        <span class="brand-tagline">AI驱动的越南投资资讯</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="main-nav">
+                <button class="nav-toggle" aria-label="切换导航菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link active">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/news/" class="nav-link">新闻</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/category/vietnam-policy/" class="nav-link">政策分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/category/market-analysis/" class="nav-link">市场分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/category/investment-news/" class="nav-link">投资资讯</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/category/industry-insights/" class="nav-link">行业洞察</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about/" class="nav-link">关于我们</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="search" placeholder="搜索新闻..." id="search-input">
+                    <button type="button" class="search-btn" id="search-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="11" cy="11" r="8" stroke="#6B7280" stroke-width="2"/>
+                            <path d="m21 21-4.35-4.35" stroke="#6B7280" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <a href="https://newseacall.com?utm_source=news_header&utm_medium=cta&utm_campaign=main_app" 
+                   class="cta-button" target="_blank">
+                    体验AI投资顾问
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="debug-info">
+            <h2>🔧 调试信息</h2>
+            <p><strong>目的：</strong>测试修复后的页面布局</p>
+            <p><strong>时间：</strong><span id="current-time"></span></p>
+        </div>
+
+        <div class="debug-section">
+            <h3>1. Header测试</h3>
+            <p>✅ 检查是否只显示一个导航栏</p>
+            <p>✅ 检查导航栏样式是否正常</p>
+            <p>✅ 检查响应式布局是否正常</p>
+        </div>
+
+        <div class="debug-section">
+            <h3>2. CSS加载测试</h3>
+            <p id="css-test">正在检查CSS加载状态...</p>
+        </div>
+
+        <div class="debug-section">
+            <h3>3. JavaScript功能测试</h3>
+            <p id="js-test">正在检查JavaScript功能...</p>
+        </div>
+
+        <div class="debug-section">
+            <h3>4. 样式测试</h3>
+            <div style="background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                <p>如果您能看到这个蓝紫色渐变背景，说明CSS样式正在正常工作。</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 更新当前时间
+        document.getElementById('current-time').textContent = new Date().toLocaleString('zh-CN');
+        
+        // 检查CSS加载
+        const testElement = document.createElement('div');
+        testElement.className = 'site-header';
+        document.body.appendChild(testElement);
+        const computedStyle = window.getComputedStyle(testElement);
+        
+        if (computedStyle.background.includes('white') || computedStyle.backgroundColor === 'rgb(255, 255, 255)') {
+            document.getElementById('css-test').innerHTML = '✅ CSS样式文件加载正常';
+        } else {
+            document.getElementById('css-test').innerHTML = '❌ CSS样式文件可能未正确加载';
+        }
+        document.body.removeChild(testElement);
+        
+        // 检查JavaScript功能
+        try {
+            const navToggle = document.querySelector('.nav-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (navToggle && navMenu) {
+                document.getElementById('js-test').innerHTML = '✅ JavaScript功能正常，导航元素已找到';
+            } else {
+                document.getElementById('js-test').innerHTML = '⚠️ 部分导航元素未找到';
+            }
+        } catch (error) {
+            document.getElementById('js-test').innerHTML = '❌ JavaScript执行出错: ' + error.message;
+        }
+        
+        // 检查重复元素
+        const headers = document.querySelectorAll('.site-header');
+        if (headers.length > 1) {
+            console.warn('发现重复的header元素:', headers.length);
+            // 隐藏多余的header
+            for (let i = 1; i < headers.length; i++) {
+                headers[i].style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
