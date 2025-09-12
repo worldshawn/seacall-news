@@ -2,6 +2,12 @@
 (function() {
     'use strict';
 
+    // 防止重复初始化
+    if (window.newseacallMainInitialized) {
+        return;
+    }
+    window.newseacallMainInitialized = true;
+
     // DOM 元素
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');

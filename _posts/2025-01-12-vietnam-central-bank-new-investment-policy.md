@@ -9,7 +9,6 @@ author: "NewSeaCall Team"
 excerpt: "越南国家银行今日发布重要政策文件，针对外商投资设立新的优惠措施，特别是在金融科技、人工智能和可再生能源领域，预计将吸引更多国际资本流入。"
 featured: true
 keywords: "越南央行, 外商投资, 政策, 科技投资, FDI"
-image: "/assets/images/vietnam-central-bank.jpg"
 ---
 
 ## 政策要点概述

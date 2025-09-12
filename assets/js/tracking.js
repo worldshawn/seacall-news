@@ -2,12 +2,18 @@
 (function() {
     'use strict';
 
+    // 防止重复初始化
+    if (window.newseacallAnalyticsInitialized) {
+        return;
+    }
+    window.newseacallAnalyticsInitialized = true;
+
     // 配置
     const config = {
-        // 生产环境下的API端点
+        // 生产环境下的API端点 - 临时禁用
         apiEndpoint: 'https://api.newseacall.com/analytics/track',
         // 本地测试时使用 console.log
-        debugMode: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
+        debugMode: true, // 临时强制开启debug模式
         // 批量发送配置
         batchSize: 10,
         batchTimeout: 30000 // 30秒
@@ -229,11 +235,11 @@
 
     // 页面停留时间追踪
     function initTimeTracking() {
-        let startTime = Date.now();
+        let trackingStartTime = Date.now();
         let timeSpent = 0;
 
         function updateTimeSpent() {
-            timeSpent = Math.round((Date.now() - startTime) / 1000);
+            timeSpent = Math.round((Date.now() - trackingStartTime) / 1000);
         }
 
         function trackTimeSpent() {
@@ -257,7 +263,7 @@
             if (document.hidden) {
                 trackTimeSpent();
             } else {
-                startTime = Date.now(); // 重新开始计时
+                trackingStartTime = Date.now(); // 重新开始计时
             }
         });
 

@@ -9,7 +9,6 @@ author: "NewSeaCall Team"
 excerpt: "最新发布的胡志明市房地产市场Q4报告显示，外资回流趋势明显，高端商业地产和住宅需求大幅增长，平均价格同比上涨12.5%，市场信心指数创2021年以来新高。"
 featured: true
 keywords: "胡志明市, 房地产, 市场分析, 外资投资, 物业价格"
-image: "/assets/images/hcmc-real-estate.jpg"
 ---
 
 ## 市场概况
