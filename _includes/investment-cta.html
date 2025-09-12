@@ -66,13 +66,13 @@
     background: linear-gradient(90deg, #3B82F6, #8B5CF6, #06B6D4);
 }
 
-.cta-container {
+.investment-cta .cta-container {
     display: flex;
     gap: 20px;
     align-items: flex-start;
 }
 
-.cta-icon {
+.investment-cta .cta-icon {
     flex-shrink: 0;
     background: white;
     border-radius: 16px;
@@ -80,12 +80,14 @@
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
 }
 
-.cta-content {
+.investment-cta .cta-content {
     flex: 1;
     min-width: 0;
+    /* 确保内容区域为块级布局，不使用flex */
+    display: block;
 }
 
-.cta-content h3 {
+.investment-cta .cta-content h3 {
     color: #1E40AF;
     font-size: 22px;
     font-weight: 700;
@@ -97,7 +99,7 @@
     display: block;
 }
 
-.cta-content p {
+.investment-cta .cta-content p {
     color: #374151;
     font-size: 16px;
     line-height: 1.6;
@@ -110,14 +112,14 @@
 
 
 
-.cta-buttons {
+.investment-cta .cta-buttons {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
     margin-bottom: 0;
 }
 
-.btn {
+.investment-cta .btn {
     padding: 16px 24px;
     border-radius: 12px;
     text-decoration: none;
@@ -138,31 +140,31 @@
     direction: ltr;
 }
 
-.btn-icon {
+.investment-cta .btn-icon {
     font-size: 18px;
 }
 
-.btn-primary {
+.investment-cta .btn-primary {
     background: linear-gradient(135deg, #3B82F6, #2563EB);
     color: white;
     border: 2px solid transparent;
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
-.btn-primary:hover {
+.investment-cta .btn-primary:hover {
     background: linear-gradient(135deg, #2563EB, #1D4ED8);
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
 }
 
-.btn-secondary {
+.investment-cta .btn-secondary {
     background: white;
     color: #3B82F6;
     border: 2px solid #3B82F6;
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
 }
 
-.btn-secondary:hover {
+.investment-cta .btn-secondary:hover {
     background: #F8FAFC;
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
@@ -176,27 +178,27 @@
         margin: 24px 0;
     }
     
-    .cta-container {
+    .investment-cta .cta-container {
         flex-direction: column;
         text-align: center;
         gap: 16px;
     }
     
-    .cta-buttons {
+    .investment-cta .cta-buttons {
         flex-direction: column;
         gap: 12px;
     }
     
-    .btn {
+    .investment-cta .btn {
         width: 100%;
         min-width: auto;
     }
     
-    .cta-content h3 {
+    .investment-cta .cta-content h3 {
         font-size: 20px;
     }
     
-    .cta-content p {
+    .investment-cta .cta-content p {
         font-size: 15px;
     }
 }
