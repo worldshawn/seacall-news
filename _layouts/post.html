@@ -51,10 +51,10 @@ layout: default
 
     <div class="post-content">
         {{ content }}
+        
+        <!-- 引流组件 -->
+        {% include investment-cta.html %}
     </div>
-    
-    <!-- 引流组件 -->
-    {% include investment-cta.html %}
     
     <footer class="post-footer">
         {% if page.tags %}

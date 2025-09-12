@@ -1293,6 +1293,10 @@ a:hover {
     padding: 2rem;
     line-height: 1.8;
     color: #374151;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 }
 
 .post-content h2 {
@@ -1632,4 +1636,22 @@ a:hover {
     .related-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Investment CTA Component Constraints */
+.post .investment-cta {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.post .investment-cta * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.post .cta-container {
+    width: 100% !important;
+    max-width: 100% !important;
 }
