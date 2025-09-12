@@ -57,11 +57,10 @@ exclude:
   - .git/
   - .sass-cache/
 
-# 集合设置
+# 集合设置 - 移除重复的permalink配置
 collections:
   posts:
     output: true
-    permalink: /:collection/:year/:month/:day/:title/
 
 # 语言设置
 lang: zh-CN

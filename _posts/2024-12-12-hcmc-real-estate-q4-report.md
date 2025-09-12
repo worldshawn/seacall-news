@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "胡志明市房地产市场Q4报告：外资回流推动高端物业需求激增"
-date: 2025-01-12 10:15:00 +0700
+date: 2024-12-12 10:15:00 +0700
 category: market-analysis
 tags: ["vietnam", "real-estate", "ho-chi-minh-city", "foreign-investment", "market-analysis"]
 source_url: "https://example.com/hcmc-real-estate-q4-report"

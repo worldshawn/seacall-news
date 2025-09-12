@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "越南央行宣布新的外商投资政策 加大对科技领域支持力度"
-date: 2025-01-12 14:30:00 +0700
+date: 2024-12-12 14:30:00 +0700
 category: vietnam-policy
 tags: ["vietnam", "policy", "investment", "technology", "central-bank"]
 source_url: "https://example.com/vietnam-central-bank-new-policy"
