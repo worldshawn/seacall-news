@@ -101,7 +101,7 @@ collections:
           label: "作者", 
           name: "author", 
           widget: "string", 
-          default: "NewSeaCall Team",
+          default: "seacall Team",
           hint: "文章作者姓名"
         }
       - { 

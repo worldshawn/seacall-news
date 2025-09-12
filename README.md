@@ -1,10 +1,10 @@
-# NewSeaCall News - 越南投资资讯站点
+# seacall News - 越南投资资讯站点
 
 专注越南市场的AI驱动投资分析与新闻资讯平台
 
 ## 🎯 项目概述
 
-NewSeaCall News是一个基于GitHub Pages + Jekyll + Decap CMS的轻量化新闻资讯系统，专为越南投资市场服务。通过智能化的内容管理和引流机制，为主应用NewSeaCall导流并提供投资价值。
+seacall News是一个基于GitHub Pages + Jekyll + Decap CMS的轻量化新闻资讯系统，专为越南投资市场服务。通过智能化的内容管理和引流机制，为主应用seacall导流并提供投资价值。
 
 ### 核心特性
 
@@ -31,7 +31,7 @@ NewSeaCall News是一个基于GitHub Pages + Jekyll + Decap CMS的轻量化新�
 ## 📁 项目结构
 
 ```
-newseacall-news/
+seacall-news/
 ├── _config.yml              # Jekyll配置
 ├── _layouts/                # 页面布局模板
 │   ├── default.html         # 默认布局
@@ -74,7 +74,7 @@ newseacall-news/
 ```bash
 # 克隆项目
 git clone <your-repo-url>
-cd newseacall-news
+cd seacall-news
 
 # 安装依赖
 bundle install
@@ -159,15 +159,15 @@ utm_campaign=investment_insights
 
 ```yaml
 # 基本站点信息
-title: NewSeaCall 越南投资资讯
+title: seacall 越南投资资讯
 description: 专注越南市场的AI驱动投资分析与新闻资讯
-url: https://news.newseacall.com
+url: https://news.seacall.com
 
-# NewSeaCall主应用配置
-newseacall:
-  main_site: https://newseacall.com
-  api_endpoint: https://api.newseacall.com
-  contact_email: contact@newseacall.com
+# seacall主应用配置
+seacall:
+  main_site: https://seacall.com
+  api_endpoint: https://api.seacall.com
+  contact_email: contact@seacall.com
 ```
 
 ### CMS配置 (admin/config.yml)
@@ -274,7 +274,7 @@ collections:
 ### 获取帮助
 
 - 查看Issues获取常见问题解答
-- 邮件联系：contact@newseacall.com
+- 邮件联系：contact@seacall.com
 - 查看Wiki文档了解详细信息
 
 ### 贡献指南
@@ -291,7 +291,7 @@ collections:
 
 ## 🔗 相关链接
 
-- [NewSeaCall主应用](https://newseacall.com)
+- [seacall主应用](https://seacall.com)
 - [Jekyll文档](https://jekyllrb.com/)
 - [Decap CMS文档](https://decapcms.org/)
 - [GitHub Pages文档](https://pages.github.com/)
@@ -300,4 +300,4 @@ collections:
 
 **版本**: v1.0.0  
 **更新时间**: 2025年1月12日  
-**维护团队**: NewSeaCall开发团队
+**维护团队**: seacall开发团队

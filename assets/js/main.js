@@ -1,12 +1,12 @@
-// NewSeaCall News 网站交互功能
+// seacall News 网站交互功能
 (function() {
     'use strict';
 
     // 防止重复初始化
-    if (window.newseacallMainInitialized) {
+    if (window.seacallMainInitialized) {
         return;
     }
-    window.newseacallMainInitialized = true;
+    window.seacallMainInitialized = true;
 
     // DOM 元素
     const navToggle = document.querySelector('.nav-toggle');
@@ -327,7 +327,7 @@
         initPrintStyles();
         initKeyboardShortcuts();
         
-        console.log('NewSeaCall News 网站已初始化');
+        console.log('seacall News 网站已初始化');
     }
 
     // 等待DOM加载完成

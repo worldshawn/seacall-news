@@ -7,14 +7,14 @@ permalink: /about/
 <div class="about-page">
     <div class="container">
         <header class="page-header">
-            <h1>关于NewSeaCall越南投资资讯</h1>
+            <h1>关于seacall越南投资资讯</h1>
             <p class="lead">专注越南市场的AI驱动投资分析与新闻资讯平台</p>
         </header>
 
         <section class="about-content">
             <div class="about-intro">
                 <h2>我们的使命</h2>
-                <p>NewSeaCall致力于为全球投资者提供最准确、最及时、最有价值的越南市场投资资讯。通过AI技术驱动的深度分析，我们帮助投资者把握越南经济发展机遇，做出明智的投资决策。</p>
+                <p>seacall致力于为全球投资者提供最准确、最及时、最有价值的越南市场投资资讯。通过AI技术驱动的深度分析，我们帮助投资者把握越南经济发展机遇，做出明智的投资决策。</p>
             </div>
 
             <div class="features-grid">
@@ -45,7 +45,7 @@ permalink: /about/
 
             <div class="team-section">
                 <h2>我们的团队</h2>
-                <p>NewSeaCall团队由来自金融、科技、越南市场研究等领域的专家组成，拥有丰富的投资分析和技术开发经验。</p>
+                <p>seacall团队由来自金融、科技、越南市场研究等领域的专家组成，拥有丰富的投资分析和技术开发经验。</p>
                 
                 <div class="expertise-areas">
                     <div class="expertise-item">
@@ -90,11 +90,11 @@ permalink: /about/
                 <div class="contact-info">
                     <div class="contact-item">
                         <strong>邮箱</strong>
-                        <p><a href="mailto:{{ site.newseacall.contact_email }}">{{ site.newseacall.contact_email }}</a></p>
+                        <p><a href="mailto:{{ site.seacall.contact_email }}">{{ site.seacall.contact_email }}</a></p>
                     </div>
                     <div class="contact-item">
                         <strong>主网站</strong>
-                        <p><a href="{{ site.newseacall.main_site }}" target="_blank">{{ site.newseacall.main_site }}</a></p>
+                        <p><a href="{{ site.seacall.main_site }}" target="_blank">{{ site.seacall.main_site }}</a></p>
                     </div>
                     <div class="contact-item">
                         <strong>社交媒体</strong>

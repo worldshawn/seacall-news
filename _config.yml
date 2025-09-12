@@ -1,5 +1,5 @@
 # 站点基本信息
-title: NewSeaCall 越南投资资讯
+title: SeaCall
 description: 专注越南市场的AI驱动投资分析与新闻资讯
 url: https://news.aiwai.net
 baseurl: ""
@@ -22,18 +22,18 @@ paginate: 10
 paginate_path: "/page:num/"
 
 # SEO设置
-author: NewSeaCall Team
+author: SeaCall Team
 twitter:
-  username: newseacall
+  username: seacall
 facebook:
   app_id: your-app-id
-  publisher: https://www.facebook.com/newseacall
+  publisher: https://www.facebook.com/seacall
 
 # 自定义变量
-newseacall:
-  main_site: https://newseacall.com
-  api_endpoint: https://api.newseacall.com
-  contact_email: contact@newseacall.com
+seacall:
+  main_site: https://seacall.com
+  api_endpoint: https://api.seacall.com
+  contact_email: contact@seacall.com
 
 # 分类设置 - 注释掉，让Jekyll自动从文章中提取分类
 # categories:

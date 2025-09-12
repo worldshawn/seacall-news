@@ -110,7 +110,7 @@ date: ${date.toISOString().replace('T', ' ').replace(/\.\d{3}Z/, ' +0700')}
 category: ${category}
 tags: ${JSON.stringify(tags)}
 source_url: "${item.link}"
-author: "NewSeaCall Team"
+author: "seacall Team"
 excerpt: "${cleanContent.replace(/"/g, '\\"')}..."
 featured: false
 keywords: "${tags.join(', ')}"
@@ -148,7 +148,7 @@ ${cleanContent}
 
 > **投资建议**：以上分析仅供参考，投资决策需要综合考虑个人风险承受能力和投资目标。建议咨询专业投资顾问。
 
-*想要获取更专业的投资分析和建议？点击下方按钮体验NewSeaCall AI投资顾问服务。*
+*想要获取更专业的投资分析和建议？点击下方按钮体验seacall AI投资顾问服务。*
 `;
             
             return { filename, content: markdownContent };
@@ -210,4 +210,4 @@ ${cleanContent}
           echo "- 📅 执行时间: $(date)" >> $GITHUB_STEP_SUMMARY
           echo "- 📰 采集源: ${#feeds[@]} 个RSS源" >> $GITHUB_STEP_SUMMARY
           echo "- 📝 新增文章: $(git diff HEAD~1 --name-only --diff-filter=A | grep '^_posts/' | wc -l) 篇" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔗 站点地址: [查看站点](https://news.newseacall.com)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 站点地址: [查看站点](https://news.seacall.com)" >> $GITHUB_STEP_SUMMARY

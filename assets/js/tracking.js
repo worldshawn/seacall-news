@@ -1,17 +1,17 @@
-// NewSeaCall News 引流效果追踪
+// seacall News 引流效果追踪
 (function() {
     'use strict';
 
     // 防止重复初始化
-    if (window.newseacallAnalyticsInitialized) {
+    if (window.seacallAnalyticsInitialized) {
         return;
     }
-    window.newseacallAnalyticsInitialized = true;
+    window.seacallAnalyticsInitialized = true;
 
     // 配置
     const config = {
         // 生产环境下的API端点 - 临时禁用
-        apiEndpoint: 'https://api.newseacall.com/analytics/track',
+        apiEndpoint: 'https://api.seacall.com/analytics/track',
         // 本地测试时使用 console.log
         debugMode: true, // 临时强制开启debug模式
         // 批量发送配置
@@ -43,7 +43,7 @@
         const ctx = canvas.getContext('2d');
         ctx.textBaseline = 'top';
         ctx.font = '14px Arial';
-        ctx.fillText('NewSeaCall Analytics', 2, 2);
+        ctx.fillText('seacall Analytics', 2, 2);
         
         return {
             screen: `${screen.width}x${screen.height}`,
@@ -167,7 +167,7 @@
         }
 
         // 记录到本地存储（用于后续分析）
-        const ctaHistory = JSON.parse(localStorage.getItem('newseacall_cta_history') || '[]');
+        const ctaHistory = JSON.parse(localStorage.getItem('seacall_cta_history') || '[]');
         ctaHistory.push({
             type: type,
             source: source,
@@ -180,7 +180,7 @@
             ctaHistory.splice(0, ctaHistory.length - 50);
         }
         
-        localStorage.setItem('newseacall_cta_history', JSON.stringify(ctaHistory));
+        localStorage.setItem('seacall_cta_history', JSON.stringify(ctaHistory));
     };
 
     // 页面浏览追踪
@@ -409,7 +409,7 @@
         initErrorTracking();
         trackPerformanceMetrics();
 
-        console.log('🎯 NewSeaCall Analytics initialized');
+        console.log('🎯 seacall Analytics initialized');
     }
 
     // 页面卸载时确保所有事件都被发送
