@@ -1638,75 +1638,119 @@ a:hover {
     }
 }
 
-/* Investment CTA Component Constraints */
+/* Investment CTA Component Constraints - 终极解决方案 */
+.post .investment-cta-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .post .investment-cta {
     width: 100% !important;
+    max-width: 100% !important;
     margin: 32px 0 !important;
+    padding: 20px !important;
     box-sizing: border-box !important;
-    /* 强制所有文字水平显示 */
-    writing-mode: horizontal-tb !important;
-    direction: ltr !important;
+    overflow: hidden !important;
+    contain: layout !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
-.post .investment-cta,
-.post .investment-cta *,
-.post .investment-cta *::before,
-.post .investment-cta *::after {
+/* 确保容器内所有元素都水平排列 */
+.post .investment-cta * {
     writing-mode: horizontal-tb !important;
+    direction: ltr !important;
     text-orientation: mixed !important;
-    direction: ltr !important;
-    unicode-bidi: normal !important;
+    box-sizing: border-box !important;
 }
 
+/* CTA容器布局 */
 .post .cta-container {
     width: 100% !important;
+    max-width: 100% !important;
     display: flex !important;
-    gap: 20px !important;
+    gap: 16px !important;
     align-items: flex-start !important;
     box-sizing: border-box !important;
-    writing-mode: horizontal-tb !important;
-    direction: ltr !important;
+    overflow: hidden !important;
 }
 
+/* 图标区域 */
+.post .cta-icon {
+    flex-shrink: 0 !important;
+    width: 48px !important;
+    height: 48px !important;
+}
+
+/* 内容区域 - 关键约束 */
 .post .cta-content {
     flex: 1 !important;
     min-width: 0 !important;
-    width: auto !important;
-    overflow: visible !important;
-    word-wrap: break-word !important;
-    hyphens: auto !important;
-    writing-mode: horizontal-tb !important;
-    direction: ltr !important;
+    width: 0 !important; /* 强制flex子元素不溢出 */
+    overflow: hidden !important;
 }
 
+/* 文字元素严格约束 */
 .post .cta-content h3,
 .post .cta-content p,
-.post .cta-content span,
-.post .cta-content strong {
+.post .cta-content strong,
+.post .cta-content span {
+    width: 100% !important;
+    max-width: 100% !important;
     word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
     hyphens: auto !important;
-    writing-mode: horizontal-tb !important;
-    direction: ltr !important;
-    display: block !important;
-    width: auto !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+}
+
+/* 按钮区域 */
+.post .cta-buttons {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
 }
 
 .post .btn {
-    writing-mode: horizontal-tb !important;
-    direction: ltr !important;
+    flex: 1 !important;
+    min-width: 140px !important;
+    max-width: 200px !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
-@media (min-width: 769px) {
-    .post .cta-container {
-        gap: 24px !important;
-    }
-}
-
+/* 响应式调整 */
 @media (max-width: 768px) {
+    .post .investment-cta {
+        padding: 16px !important;
+        margin: 24px 0 !important;
+    }
+    
     .post .cta-container {
         flex-direction: column !important;
         text-align: center !important;
-        gap: 16px !important;
+        gap: 12px !important;
+    }
+    
+    .post .cta-content {
+        width: 100% !important;
+    }
+    
+    .post .cta-buttons {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    .post .btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: auto !important;
     }
 }
