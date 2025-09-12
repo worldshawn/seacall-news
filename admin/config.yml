@@ -1,0 +1,230 @@
+backend:
+  name: git-gateway
+  branch: main
+  commit_messages:
+    create: 'Create {{collection}} "{{slug}}"'
+    update: 'Update {{collection}} "{{slug}}"'
+    delete: 'Delete {{collection}} "{{slug}}"'
+    uploadMedia: '[skip ci] Upload "{{path}}"'
+    deleteMedia: '[skip ci] Delete "{{path}}"'
+
+# 本地开发配置
+local_backend: true
+
+media_folder: "assets/images/uploads"
+public_folder: "/assets/images/uploads"
+
+# 站点配置
+site_url: https://news.newseacall.com
+display_url: https://news.newseacall.com
+logo_url: https://news.newseacall.com/assets/images/logo.png
+
+# 编辑器配置
+editor:
+  preview: true
+
+# 内容集合
+collections:
+  # 新闻文章
+  - name: "news"
+    label: "新闻文章"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    preview_path: "news/{{year}}/{{month}}/{{day}}/{{slug}}"
+    fields:
+      - { 
+          label: "布局", 
+          name: "layout", 
+          widget: "hidden", 
+          default: "post" 
+        }
+      - { 
+          label: "标题", 
+          name: "title", 
+          widget: "string", 
+          required: true,
+          hint: "简洁明确的新闻标题，建议控制在50字以内"
+        }
+      - { 
+          label: "发布日期", 
+          name: "date", 
+          widget: "datetime", 
+          required: true,
+          date_format: "YYYY-MM-DD",
+          time_format: "HH:mm",
+          format: "YYYY-MM-DD HH:mm:ss +0700"
+        }
+      - { 
+          label: "分类", 
+          name: "category", 
+          widget: "select", 
+          required: true,
+          options: [
+            { label: "越南政策", value: "vietnam-policy" },
+            { label: "市场分析", value: "market-analysis" },
+            { label: "投资新闻", value: "investment-news" },
+            { label: "行业洞察", value: "industry-insights" }
+          ],
+          hint: "选择最符合文章内容的分类"
+        }
+      - { 
+          label: "标签", 
+          name: "tags", 
+          widget: "list", 
+          required: false,
+          default: ["vietnam", "investment"],
+          hint: "添加相关标签，用于SEO和文章关联，建议3-5个"
+        }
+      - { 
+          label: "文章摘要", 
+          name: "excerpt", 
+          widget: "text", 
+          required: false,
+          hint: "简短描述文章主要内容，用于首页展示和SEO，建议100-200字"
+        }
+      - { 
+          label: "特色图片", 
+          name: "image", 
+          widget: "image", 
+          required: false,
+          hint: "上传文章封面图片，建议尺寸1200x630px，格式JPG/PNG"
+        }
+      - { 
+          label: "原文链接", 
+          name: "source_url", 
+          widget: "string", 
+          required: false,
+          hint: "如果是转载或参考文章，请提供原文链接"
+        }
+      - { 
+          label: "作者", 
+          name: "author", 
+          widget: "string", 
+          default: "NewSeaCall Team",
+          hint: "文章作者姓名"
+        }
+      - { 
+          label: "置顶文章", 
+          name: "featured", 
+          widget: "boolean", 
+          default: false,
+          hint: "是否在首页特色区域显示"
+        }
+      - { 
+          label: "SEO关键词", 
+          name: "keywords", 
+          widget: "string", 
+          required: false,
+          hint: "用于搜索引擎优化的关键词，用逗号分隔"
+        }
+      - { 
+          label: "正文内容", 
+          name: "body", 
+          widget: "markdown", 
+          required: true,
+          hint: "使用Markdown格式编写文章正文内容"
+        }
+
+  # 静态页面
+  - name: "pages"
+    label: "页面管理"
+    files:
+      - label: "关于我们"
+        name: "about"
+        file: "about.md"
+        fields:
+          - { label: "标题", name: "title", widget: "string", default: "关于我们" }
+          - { label: "布局", name: "layout", widget: "hidden", default: "page" }
+          - { label: "永久链接", name: "permalink", widget: "hidden", default: "/about/" }
+          - { label: "内容", name: "body", widget: "markdown" }
+      
+      - label: "隐私政策"
+        name: "privacy"
+        file: "privacy.md"
+        fields:
+          - { label: "标题", name: "title", widget: "string", default: "隐私政策" }
+          - { label: "布局", name: "layout", widget: "hidden", default: "page" }
+          - { label: "永久链接", name: "permalink", widget: "hidden", default: "/privacy/" }
+          - { label: "内容", name: "body", widget: "markdown" }
+      
+      - label: "服务条款"
+        name: "terms"
+        file: "terms.md"
+        fields:
+          - { label: "标题", name: "title", widget: "string", default: "服务条款" }
+          - { label: "布局", name: "layout", widget: "hidden", default: "page" }
+          - { label: "永久链接", name: "permalink", widget: "hidden", default: "/terms/" }
+          - { label: "内容", name: "body", widget: "markdown" }
+      
+      - label: "免责声明"
+        name: "disclaimer"
+        file: "disclaimer.md"
+        fields:
+          - { label: "标题", name: "title", widget: "string", default: "免责声明" }
+          - { label: "布局", name: "layout", widget: "hidden", default: "page" }
+          - { label: "永久链接", name: "permalink", widget: "hidden", default: "/disclaimer/" }
+          - { label: "内容", name: "body", widget: "markdown" }
+
+  # 数据配置
+  - name: "data"
+    label: "站点配置"
+    files:
+      - label: "导航菜单"
+        name: "navigation"
+        file: "_data/navigation.yml"
+        fields:
+          - label: "导航项目"
+            name: "main"
+            widget: "list"
+            fields:
+              - { label: "标题", name: "title", widget: "string" }
+              - { label: "链接", name: "url", widget: "string" }
+              - { label: "是否在新窗口打开", name: "external", widget: "boolean", default: false }
+      
+      - label: "分类配置"
+        name: "categories"
+        file: "_data/categories.yml"
+        fields:
+          - label: "分类列表"
+            name: "categories"
+            widget: "list"
+            fields:
+              - { label: "分类ID", name: "id", widget: "string" }
+              - { label: "显示名称", name: "name", widget: "string" }
+              - { label: "描述", name: "description", widget: "text" }
+              - { label: "图标", name: "icon", widget: "string" }
+              - { label: "颜色", name: "color", widget: "string" }
+
+# 工作流配置
+publish_mode: editorial_workflow
+
+# 搜索配置
+search: true
+
+# 排序配置
+sortable_fields: ['title', 'date', 'author', 'category']
+
+# 视图配置
+view_filters:
+  - label: "草稿"
+    field: draft
+    pattern: true
+  - label: "按分类"
+    field: category
+    pattern: front_matter_value
+  - label: "按年份"
+    field: date
+    pattern: '2023'
+  - label: "特色文章"
+    field: featured
+    pattern: true
+
+view_groups:
+  - label: "按年份"
+    field: date
+    pattern: "YYYY"
+  - label: "按分类"
+    field: category
+  - label: "按作者"
+    field: author

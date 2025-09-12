@@ -1,0 +1,140 @@
+---
+layout: default
+---
+
+<div class="home-container">
+    <!-- 头条新闻区域 -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">{{ site.title }}</h1>
+            <p class="hero-description">{{ site.description }}</p>
+            
+            <!-- 特色新闻轮播 -->
+            {% assign featured_posts = site.posts | where: "featured", true | limit: 3 %}
+            {% if featured_posts.size > 0 %}
+            <div class="featured-news">
+                {% for post in featured_posts %}
+                <article class="featured-item">
+                    {% if post.image %}
+                    <div class="featured-image">
+                        <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+                    </div>
+                    {% endif %}
+                    <div class="featured-content">
+                        <div class="featured-meta">
+                            <span class="category">{{ post.category | replace: '-', ' ' | capitalize }}</span>
+                            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%m月%d日" }}</time>
+                        </div>
+                        <h2 class="featured-title">
+                            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                        </h2>
+                        {% if post.excerpt %}
+                        <p class="featured-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- 最新新闻列表 -->
+    <section class="latest-news">
+        <div class="section-header">
+            <h2>最新资讯</h2>
+            <a href="/news/" class="view-all">查看全部</a>
+        </div>
+        
+        <div class="news-grid">
+            {% assign recent_posts = site.posts | limit: 12 %}
+            {% for post in recent_posts %}
+            <article class="news-item">
+                {% if post.image %}
+                <div class="news-image">
+                    <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+                </div>
+                {% endif %}
+                
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span class="category category-{{ post.category }}">
+                            {{ post.category | replace: '-', ' ' | capitalize }}
+                        </span>
+                        <time datetime="{{ post.date | date_to_xmlschema }}">
+                            {{ post.date | date: "%m月%d日" }}
+                        </time>
+                    </div>
+                    
+                    <h3 class="news-title">
+                        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                    </h3>
+                    
+                    {% if post.excerpt %}
+                    <p class="news-excerpt">{{ post.excerpt | strip_html | truncate: 100 }}</p>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 分类快速导航 -->
+    <section class="category-nav">
+        <h3>分类浏览</h3>
+        <div class="category-grid">
+            {% for category in site.categories %}
+            <a href="/category/{{ category }}/" class="category-card">
+                <div class="category-icon">
+                    {% case category %}
+                    {% when 'vietnam-policy' %}📋
+                    {% when 'market-analysis' %}📊
+                    {% when 'investment-news' %}💰
+                    {% when 'industry-insights' %}🔍
+                    {% else %}📰
+                    {% endcase %}
+                </div>
+                <h4>
+                    {% case category %}
+                    {% when 'vietnam-policy' %}越南政策
+                    {% when 'market-analysis' %}市场分析
+                    {% when 'investment-news' %}投资新闻
+                    {% when 'industry-insights' %}行业洞察
+                    {% else %}{{ category | replace: '-', ' ' | capitalize }}
+                    {% endcase %}
+                </h4>
+                <span class="post-count">
+                    {{ site.posts | where: "category", category | size }} 篇文章
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- CTA到主应用 -->
+    <section class="main-app-cta">
+        <div class="cta-content">
+            <div class="cta-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z" fill="#3B82F6"/>
+                </svg>
+            </div>
+            
+            <div class="cta-text">
+                <h3>🚀 体验NewSeaCall AI投资顾问</h3>
+                <p>基于最新资讯，获取AI驱动的专业投资分析和建议</p>
+            </div>
+            
+            <div class="cta-buttons">
+                <a href="{{ site.newseacall.main_site }}?utm_source=news_home&utm_medium=cta&utm_campaign=main_app" 
+                   class="btn btn-primary" target="_blank" onclick="trackCTAClick('main_app', 'home')">
+                    开始投资分析
+                </a>
+                <a href="{{ site.newseacall.main_site }}/chat?utm_source=news_home&utm_medium=cta&utm_campaign=ai_chat" 
+                   class="btn btn-secondary" target="_blank" onclick="trackCTAClick('ai_chat', 'home')">
+                    AI顾问咨询
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

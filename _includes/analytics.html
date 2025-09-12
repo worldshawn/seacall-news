@@ -1,0 +1,99 @@
+<!-- Google Analytics 配置 -->
+{% if jekyll.environment == "production" %}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    'send_page_view': true,
+    'anonymize_ip': true
+  });
+  
+  // 自定义事件追踪
+  function trackCTAClick(type, article) {
+    gtag('event', 'cta_click', {
+      'event_category': 'News_CTA',
+      'event_label': type,
+      'value': 1,
+      'custom_parameter_1': article,
+      'page_title': document.title,
+      'page_location': window.location.href
+    });
+    
+    console.log('CTA点击追踪:', { type, article });
+  }
+  
+  // 追踪页面停留时间
+  let startTime = Date.now();
+  let timeSpentTracked = false;
+  
+  function trackTimeSpent() {
+    if (!timeSpentTracked) {
+      const timeSpent = Math.round((Date.now() - startTime) / 1000);
+      gtag('event', 'page_time', {
+        'event_category': 'Engagement',
+        'event_label': 'time_on_page',
+        'value': timeSpent,
+        'non_interaction': true
+      });
+      timeSpentTracked = true;
+    }
+  }
+  
+  // 页面卸载时追踪停留时间
+  window.addEventListener('beforeunload', trackTimeSpent);
+  
+  // 长时间停留追踪 (30秒后)
+  setTimeout(trackTimeSpent, 30000);
+  
+  // 滚动深度追踪
+  let scrollDepths = [25, 50, 75, 90];
+  let scrollTracked = [];
+  
+  function trackScrollDepth() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+    
+    scrollDepths.forEach(depth => {
+      if (scrollPercent >= depth && !scrollTracked.includes(depth)) {
+        scrollTracked.push(depth);
+        gtag('event', 'scroll_depth', {
+          'event_category': 'Engagement',
+          'event_label': depth + '%',
+          'value': depth,
+          'non_interaction': true
+        });
+      }
+    });
+  }
+  
+  window.addEventListener('scroll', trackScrollDepth);
+  
+  // 外链点击追踪
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link && link.hostname !== window.location.hostname) {
+      gtag('event', 'click', {
+        'event_category': 'External_Link',
+        'event_label': link.href,
+        'transport_type': 'beacon'
+      });
+    }
+  });
+</script>
+{% endif %}
+
+<!-- Baidu Analytics (如果需要) -->
+{% if jekyll.environment == "production" %}
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?YOUR_BAIDU_ANALYTICS_ID";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+{% endif %}

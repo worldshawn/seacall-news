@@ -1,0 +1,80 @@
+# 站点基本信息
+title: NewSeaCall 越南投资资讯
+description: 专注越南市场的AI驱动投资分析与新闻资讯
+url: https://news.newseacall.com
+baseurl: ""
+
+# Jekyll设置
+markdown: kramdown
+highlighter: rouge
+timezone: Asia/Ho_Chi_Minh
+permalink: /news/:year/:month/:day/:title/
+
+# 插件
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-paginate
+
+# 分页设置
+paginate: 10
+paginate_path: "/page:num/"
+
+# SEO设置
+author: NewSeaCall Team
+twitter:
+  username: newseacall
+facebook:
+  app_id: your-app-id
+  publisher: https://www.facebook.com/newseacall
+
+# 自定义变量
+newseacall:
+  main_site: https://newseacall.com
+  api_endpoint: https://api.newseacall.com
+  contact_email: contact@newseacall.com
+
+# 分类设置
+categories:
+  - vietnam-policy      # 越南政策
+  - market-analysis     # 市场分析
+  - investment-news     # 投资新闻
+  - industry-insights   # 行业洞察
+
+# 构建设置
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - README.md
+  - package.json
+  - package-lock.json
+  - collect-rss.js
+  - .gitignore
+
+# 集合设置
+collections:
+  posts:
+    output: true
+    permalink: /:collection/:year/:month/:day/:title/
+
+# 语言设置
+lang: zh-CN
+
+# 站点导航
+navigation:
+  - title: "首页"
+    url: "/"
+  - title: "新闻"
+    url: "/news/"
+  - title: "政策分析"
+    url: "/category/vietnam-policy/"
+  - title: "市场分析"
+    url: "/category/market-analysis/"
+  - title: "投资资讯"
+    url: "/category/investment-news/"
+  - title: "行业洞察"
+    url: "/category/industry-insights/"
+  - title: "关于我们"
+    url: "/about/"

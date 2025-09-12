@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>新闻内容管理 - NewSeaCall</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+    <!-- 包含构建脚本 -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    
+    <script>
+        // 配置编辑器预览
+        CMS.registerPreviewTemplate("news", ({ entry, widgetFor, widgetsFor }) => {
+            const title = entry.getIn(["data", "title"]);
+            const body = widgetFor("body");
+            const date = entry.getIn(["data", "date"]);
+            const category = entry.getIn(["data", "category"]);
+            
+            return `
+                <div style="padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <div style="color: #666; margin-bottom: 10px;">
+                        <span style="background: #3B82F6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            ${category}
+                        </span>
+                        <span style="margin-left: 10px;">${new Date(date).toLocaleDateString('zh-CN')}</span>
+                    </div>
+                    <h1 style="color: #1F2937; margin-bottom: 20px;">${title}</h1>
+                    <div style="line-height: 1.6; color: #374151;">${body}</div>
+                </div>
+            `;
+        });
+        
+        // 自定义部件
+        CMS.registerWidget("category-select", {
+            controlComponent: ({ value, onChange }) => {
+                const categories = {
+                    'vietnam-policy': '越南政策',
+                    'market-analysis': '市场分析',
+                    'investment-news': '投资新闻',
+                    'industry-insights': '行业洞察'
+                };
+                
+                return React.createElement('select', {
+                    value: value || '',
+                    onChange: (e) => onChange(e.target.value),
+                    style: { 
+                        padding: '8px', 
+                        borderRadius: '4px', 
+                        border: '1px solid #ccc',
+                        fontSize: '14px'
+                    }
+                }, [
+                    React.createElement('option', { value: '', key: 'empty' }, '请选择分类'),
+                    ...Object.entries(categories).map(([key, label]) => 
+                        React.createElement('option', { value: key, key }, label)
+                    )
+                ]);
+            },
+            previewComponent: ({ value }) => {
+                const categories = {
+                    'vietnam-policy': '越南政策',
+                    'market-analysis': '市场分析',
+                    'investment-news': '投资新闻',
+                    'industry-insights': '行业洞察'
+                };
+                return React.createElement('span', {}, categories[value] || value);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+---
+layout: default
+---
+
+<article class="post">
+    <header class="post-header">
+        <div class="post-breadcrumb">
+            <a href="/">首页</a> &raquo; 
+            <a href="/news/">新闻</a> &raquo; 
+            <a href="/category/{{ page.category }}/">
+                {% case page.category %}
+                {% when 'vietnam-policy' %}越南政策
+                {% when 'market-analysis' %}市场分析
+                {% when 'investment-news' %}投资新闻
+                {% when 'industry-insights' %}行业洞察
+                {% else %}{{ page.category | replace: '-', ' ' | capitalize }}
+                {% endcase %}
+            </a>
+        </div>
+        
+        <div class="post-meta">
+            <span class="category category-{{ page.category }}">
+                {% case page.category %}
+                {% when 'vietnam-policy' %}越南政策
+                {% when 'market-analysis' %}市场分析
+                {% when 'investment-news' %}投资新闻
+                {% when 'industry-insights' %}行业洞察
+                {% else %}{{ page.category | replace: '-', ' ' | capitalize }}
+                {% endcase %}
+            </span>
+            <time datetime="{{ page.date | date_to_xmlschema }}">
+                {{ page.date | date: "%Y年%m月%d日 %H:%M" }}
+            </time>
+            <span class="author">{{ page.author | default: "NewSeaCall Team" }}</span>
+        </div>
+        
+        <h1 class="post-title">{{ page.title }}</h1>
+        
+        {% if page.excerpt %}
+        <div class="post-excerpt">
+            {{ page.excerpt }}
+        </div>
+        {% endif %}
+        
+        {% if page.image %}
+        <div class="post-image">
+            <img src="{{ page.image | relative_url }}" alt="{{ page.title }}" loading="lazy">
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="post-content">
+        {{ content }}
+    </div>
+    
+    <!-- 引流组件 -->
+    {% include investment-cta.html %}
+    
+    <footer class="post-footer">
+        {% if page.tags %}
+        <div class="post-tags">
+            <span class="tags-label">标签：</span>
+            {% for tag in page.tags %}
+            <span class="tag">#{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if page.source_url %}
+        <div class="post-source">
+            <a href="{{ page.source_url }}" target="_blank" rel="noopener nofollow">
+                🔗 查看原文
+            </a>
+        </div>
+        {% endif %}
+        
+        <div class="post-share">
+            <span class="share-label">分享：</span>
+            <div class="share-buttons">
+                <a href="https://twitter.com/intent/tweet?text={{ page.title | url_encode }}&url={{ page.url | absolute_url }}" 
+                   target="_blank" rel="noopener" class="share-twitter">
+                    Twitter
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ page.url | absolute_url }}" 
+                   target="_blank" rel="noopener" class="share-facebook">
+                    Facebook
+                </a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ page.url | absolute_url }}" 
+                   target="_blank" rel="noopener" class="share-linkedin">
+                    LinkedIn
+                </a>
+            </div>
+        </div>
+        
+        <div class="post-navigation">
+            {% if page.previous %}
+            <div class="nav-previous">
+                <a href="{{ page.previous.url | relative_url }}" rel="prev">
+                    <span class="nav-label">← 上一篇</span>
+                    <span class="nav-title">{{ page.previous.title | truncate: 40 }}</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if page.next %}
+            <div class="nav-next">
+                <a href="{{ page.next.url | relative_url }}" rel="next">
+                    <span class="nav-label">下一篇 →</span>
+                    <span class="nav-title">{{ page.next.title | truncate: 40 }}</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </footer>
+</article>
+
+<!-- 相关文章 -->
+<section class="related-posts">
+    <h3>相关阅读</h3>
+    <div class="related-grid">
+        {% assign related_posts = site.posts | where: "category", page.category | limit: 4 %}
+        {% for post in related_posts %}
+            {% unless post.url == page.url %}
+            <article class="related-item">
+                {% if post.image %}
+                <div class="related-image">
+                    <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+                </div>
+                {% endif %}
+                <div class="related-content">
+                    <h4><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h4>
+                    <time>{{ post.date | date: "%m月%d日" }}</time>
+                </div>
+            </article>
+            {% endunless %}
+        {% endfor %}
+    </div>
+</section>

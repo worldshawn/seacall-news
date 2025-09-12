@@ -1,0 +1,213 @@
+name: Auto Collect RSS News
+
+on:
+  # 每8小时运行一次
+  schedule:
+    - cron: '0 */8 * * *'
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  collect-news:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install rss-parser openai
+
+      - name: Collect RSS feeds
+        run: |
+          cat > collect-rss.js << 'EOF'
+          const Parser = require('rss-parser');
+          const fs = require('fs');
+          const path = require('path');
+          
+          const parser = new Parser({
+            customFields: {
+              item: ['content:encoded', 'content']
+            }
+          });
+          
+          // RSS源配置
+          const feeds = [
+            {
+              url: 'https://vneconomy.vn/rss/home.rss',
+              source: 'VnEconomy',
+              category: 'market-analysis'
+            },
+            {
+              url: 'https://cafef.vn/rss/trang-chu.rss',
+              source: 'CafeF',
+              category: 'investment-news'
+            },
+            {
+              url: 'https://vietnamnet.vn/rss/kinh-doanh.rss',
+              source: 'VietnamNet',
+              category: 'industry-insights'
+            }
+          ];
+          
+          // 越南投资相关关键词
+          const keywords = [
+            'vietnam', 'việt nam', 'investment', 'đầu tư', 'kinh tế', 'economy',
+            'thị trường', 'market', 'chính sách', 'policy', 'ngân hàng', 'bank',
+            'bất động sản', 'real estate', 'công nghệ', 'technology', 'startup',
+            'FDI', 'GDP', 'xuất khẩu', 'export', 'nhập khẩu', 'import'
+          ];
+          
+          // 检查文章是否与投资相关
+          function isInvestmentRelated(title, content) {
+            const text = (title + ' ' + content).toLowerCase();
+            return keywords.some(keyword => text.includes(keyword.toLowerCase()));
+          }
+          
+          // 生成文章slug
+          function generateSlug(title) {
+            return title
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, '')
+              .replace(/[\s_-]+/g, '-')
+              .replace(/^-+|-+$/g, '')
+              .substring(0, 50);
+          }
+          
+          // 获取分类标签
+          function getCategoryTags(category) {
+            const tagMap = {
+              'vietnam-policy': ['vietnam', 'policy', 'government', 'regulation'],
+              'market-analysis': ['market', 'analysis', 'economy', 'trend'],
+              'investment-news': ['investment', 'finance', 'funding', 'capital'],
+              'industry-insights': ['industry', 'business', 'innovation', 'growth']
+            };
+            return tagMap[category] || ['vietnam', 'news'];
+          }
+          
+          // 生成Markdown内容
+          function generateMarkdownContent(item, feedSource, category) {
+            const date = new Date();
+            const slug = generateSlug(item.title);
+            const filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${slug}.md`;
+            
+            const tags = getCategoryTags(category);
+            const content = item['content:encoded'] || item.content || item.contentSnippet || '';
+            const cleanContent = content.replace(/<[^>]*>/g, '').substring(0, 500);
+            
+            const markdownContent = `---
+layout: post
+title: "${item.title.replace(/"/g, '\\"')}"
+date: ${date.toISOString().replace('T', ' ').replace(/\.\d{3}Z/, ' +0700')}
+category: ${category}
+tags: ${JSON.stringify(tags)}
+source_url: "${item.link}"
+author: "NewSeaCall Team"
+excerpt: "${cleanContent.replace(/"/g, '\\"')}..."
+featured: false
+keywords: "${tags.join(', ')}"
+---
+
+## 新闻摘要
+
+${cleanContent}
+
+## 投资角度分析
+
+### 📊 市场影响
+根据这一新闻，可能对相关市场产生以下影响：
+- **短期影响**：市场情绪变化，相关股票波动
+- **中期影响**：行业政策调整，投资机会涌现
+- **长期影响**：结构性变化，产业格局重塑
+
+### 💡 投资机会
+基于新闻内容，我们识别出以下潜在投资机会：
+- **直接机会**：相关上市公司、行业龙头
+- **间接机会**：供应链企业、配套服务商
+- **新兴机会**：技术创新、商业模式变化
+
+### ⚠️ 风险提示
+投资者需要注意的风险因素：
+- **政策风险**：政府政策变化的不确定性
+- **市场风险**：市场波动和竞争加剧
+- **操作风险**：投资时机和规模控制
+
+## 相关资源
+
+- **原文链接**：[查看完整新闻](${item.link})
+- **新闻来源**：${feedSource}
+- **发布时间**：${new Date(item.pubDate || date).toLocaleDateString('zh-CN')}
+
+> **投资建议**：以上分析仅供参考，投资决策需要综合考虑个人风险承受能力和投资目标。建议咨询专业投资顾问。
+
+*想要获取更专业的投资分析和建议？点击下方按钮体验NewSeaCall AI投资顾问服务。*
+`;
+            
+            return { filename, content: markdownContent };
+          }
+          
+          async function collectNews() {
+            console.log('开始采集RSS新闻...');
+            
+            for (const feed of feeds) {
+              try {
+                console.log(`正在采集: ${feed.url}`);
+                const parsed = await parser.parseURL(feed.url);
+                const items = parsed.items.slice(0, 3); // 每个源最多取3篇
+                
+                for (const item of items) {
+                  // 检查是否与投资相关
+                  if (isInvestmentRelated(item.title, item.contentSnippet || '')) {
+                    const { filename, content } = generateMarkdownContent(item, feed.source, feed.category);
+                    const filePath = path.join('_posts', filename);
+                    
+                    // 检查文件是否已存在
+                    if (!fs.existsSync(filePath)) {
+                      fs.writeFileSync(filePath, content, 'utf8');
+                      console.log(`已创建: ${filename}`);
+                    } else {
+                      console.log(`已存在: ${filename}`);
+                    }
+                  }
+                }
+              } catch (error) {
+                console.error(`采集 ${feed.url} 时出错:`, error.message);
+              }
+            }
+            
+            console.log('RSS采集完成');
+          }
+          
+          collectNews().catch(console.error);
+          EOF
+          
+          node collect-rss.js
+
+      - name: Commit new posts
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add _posts/
+          if ! git diff --staged --quiet; then
+            git commit -m "🤖 Auto: Add RSS news posts [$(date +'%Y-%m-%d %H:%M')]"
+            git push
+            echo "✅ 新文章已自动发布"
+          else
+            echo "ℹ️ 没有新文章需要发布"
+          fi
+
+      - name: Create summary
+        run: |
+          echo "## RSS采集摘要" >> $GITHUB_STEP_SUMMARY
+          echo "- 📅 执行时间: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📰 采集源: ${#feeds[@]} 个RSS源" >> $GITHUB_STEP_SUMMARY
+          echo "- 📝 新增文章: $(git diff HEAD~1 --name-only --diff-filter=A | grep '^_posts/' | wc -l) 篇" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 站点地址: [查看站点](https://news.newseacall.com)" >> $GITHUB_STEP_SUMMARY
