@@ -1,118 +1,33 @@
 <!-- 智能引流组件 -->
-<div class="investment-cta">
-    <div class="cta-container">
-        <div class="cta-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z" fill="#3B82F6"/>
-                <path d="M9 10L11 12L15 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
-        
-        <div class="cta-content">
-            <h3>🔍 想要更深入的投资分析？</h3>
-            <p>基于这篇关于
-                <strong>
-                    {% case page.category %}
-                    {% when 'vietnam-policy' %}越南政策
-                    {% when 'market-analysis' %}市场分析
-                    {% when 'investment-news' %}投资新闻
-                    {% when 'industry-insights' %}行业洞察
-                    {% else %}{{ page.category | replace: '-', ' ' | capitalize }}
-                    {% endcase %}
-                </strong>
-                的新闻，我们的AI系统已发现潜在投资机会。
-            </p>
-            
-            <div class="cta-features">
-                <div class="feature">
-                    <span class="feature-icon">✅</span>
-                    <span>AI驱动的越南市场深度分析</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">✅</span>
-                    <span>实时政策解读和投资建议</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">✅</span>
-                    <span>专业投资顾问一对一咨询</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">✅</span>
-                    <span>个性化投资组合推荐</span>
-                </div>
+<div class="investment-cta-wrapper">
+    <div class="investment-cta">
+        <div class="cta-container">
+            <div class="cta-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z" fill="#3B82F6"/>
+                    <path d="M9 10L11 12L15 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
             
-            <!-- 动态推荐基于新闻类别 -->
-            <div class="smart-recommendations">
-                {% case page.category %}
-                {% when 'vietnam-policy' %}
-                <div class="recommendation-highlight">
-                    <span class="rec-icon">📋</span>
-                    <div class="rec-content">
-                        <strong>政策解读专家建议：</strong>
-                        <p>该政策变化可能影响相关行业投资机会，建议进行专业分析评估。</p>
-                    </div>
-                </div>
-                {% when 'market-analysis' %}
-                <div class="recommendation-highlight">
-                    <span class="rec-icon">📊</span>
-                    <div class="rec-content">
-                        <strong>市场机会洞察：</strong>
-                        <p>基于当前市场分析，我们发现了几个值得关注的投资领域。</p>
-                    </div>
-                </div>
-                {% when 'investment-news' %}
-                <div class="recommendation-highlight">
-                    <span class="rec-icon">💰</span>
-                    <div class="rec-content">
-                        <strong>投资机会预警：</strong>
-                        <p>相关投资动态可能创造新的市场机会，建议及时评估风险收益。</p>
-                    </div>
-                </div>
-                {% when 'industry-insights' %}
-                <div class="recommendation-highlight">
-                    <span class="rec-icon">🔍</span>
-                    <div class="rec-content">
-                        <strong>行业深度分析：</strong>
-                        <p>行业趋势变化往往带来投资机遇，专业分析助您把握时机。</p>
-                    </div>
-                </div>
-                {% endcase %}
-            </div>
-            
-            <div class="cta-buttons">
-                <a href="{{ site.seacall.main_site }}/analysis?news={{ page.slug | default: page.title | slugify }}&category={{ page.category }}&utm_source=news&utm_medium=cta&utm_campaign=investment_insights" 
-                   class="btn btn-primary" target="_blank" onclick="trackCTAClick('ai_analysis', '{{ page.slug | default: page.title | slugify }}')">
-                    <span class="btn-icon">🤖</span>
-                    获取AI投资分析
-                </a>
-                <a href="{{ site.seacall.main_site }}/chat?context={{ page.title | url_encode }}&category={{ page.category }}&utm_source=news&utm_medium=cta&utm_campaign=chat" 
-                   class="btn btn-secondary" target="_blank" onclick="trackCTAClick('ai_chat', '{{ page.slug | default: page.title | slugify }}')">
-                    <span class="btn-icon">💬</span>
-                    AI顾问咨询
-                </a>
-            </div>
-            
-            <div class="cta-trust-indicators">
-                <div class="trust-item">
-                    <span class="trust-icon">🏆</span>
-                    <span>AI驱动分析</span>
-                </div>
-                <div class="trust-item">
-                    <span class="trust-icon">🔒</span>
-                    <span>数据安全</span>
-                </div>
-                <div class="trust-item">
-                    <span class="trust-icon">⚡</span>
-                    <span>实时更新</span>
-                </div>
-                <div class="trust-item">
-                    <span class="trust-icon">👥</span>
-                    <span>专业团队</span>
+            <div class="cta-content">
+                <h3>💡 获取专业投资分析</h3>
+                <p>基于此新闻内容，获取AI驱动的投资建议和分析。</p>
+                
+                <div class="cta-buttons">
+                    <a href="{{ site.seacall.main_site }}/analysis?news={{ page.slug | default: page.title | slugify }}&category={{ page.category }}&utm_source=news&utm_medium=cta&utm_campaign=investment_insights" 
+                       class="btn btn-primary" target="_blank" onclick="if(window.gtagAnalytics) window.gtagAnalytics.trackCTAClick('ai_analysis', '{{ page.slug | default: page.title | slugify }}'); else if(window.trackCTAClick) trackCTAClick('ai_analysis', '{{ page.slug | default: page.title | slugify }}');">
+                        <span class="btn-icon">🤖</span>
+                        AI投资分析
+                    </a>
+                    <a href="{{ site.seacall.main_site }}/chat?context={{ page.title | url_encode }}&category={{ page.category }}&utm_source=news&utm_medium=cta&utm_campaign=chat" 
+                       class="btn btn-secondary" target="_blank" onclick="if(window.gtagAnalytics) window.gtagAnalytics.trackCTAClick('ai_chat', '{{ page.slug | default: page.title | slugify }}'); else if(window.trackCTAClick) trackCTAClick('ai_chat', '{{ page.slug | default: page.title | slugify }}');">
+                        <span class="btn-icon">💬</span>
+                        AI顾问咨询
+                    </a>
                 </div>
             </div>
-        </div>
     </div>
+</div>
 </div>
 
 <style>
@@ -195,6 +110,8 @@
     display: block;
 }
 
+
+
 .investment-cta .cta-buttons {
     display: flex;
     gap: 16px;
@@ -253,44 +170,8 @@
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
 }
 
-/* 投资CTA组件响应式设计 */
-/* 大屏幕平板优化 */
-@media (max-width: 1024px) {
-    .investment-cta {
-        padding: 22px;
-        margin: 30px 0;
-    }
-    
-    .investment-cta .cta-container {
-        gap: 18px;
-    }
-    
-    .investment-cta .cta-icon {
-        padding: 11px;
-    }
-    
-    .investment-cta .cta-content h3 {
-        font-size: 20px;
-        margin-bottom: 14px;
-    }
-    
-    .investment-cta .cta-content p {
-        font-size: 15px;
-        margin-bottom: 22px;
-    }
-    
-    .investment-cta .cta-buttons {
-        gap: 14px;
-    }
-    
-    .investment-cta .btn {
-        padding: 15px 22px;
-        font-size: 14px;
-        min-width: 150px;
-    }
-}
 
-/* 中等屏幕优化 */
+
 @media (max-width: 768px) {
     .investment-cta {
         padding: 20px;
@@ -303,21 +184,6 @@
         gap: 16px;
     }
     
-    .investment-cta .cta-icon {
-        padding: 10px;
-        margin: 0 auto;
-    }
-    
-    .investment-cta .cta-content h3 {
-        font-size: 18px;
-        margin-bottom: 12px;
-    }
-    
-    .investment-cta .cta-content p {
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-    
     .investment-cta .cta-buttons {
         flex-direction: column;
         gap: 12px;
@@ -326,86 +192,16 @@
     .investment-cta .btn {
         width: 100%;
         min-width: auto;
-        padding: 14px 20px;
-        font-size: 14px;
-    }
-}
-
-/* 手机端优化 */
-@media (max-width: 576px) {
-    .investment-cta {
-        padding: 16px;
-        margin: 20px 0;
-        border-radius: 12px;
-    }
-    
-    .investment-cta .cta-container {
-        gap: 14px;
-    }
-    
-    .investment-cta .cta-icon {
-        padding: 8px;
-    }
-    
-    .investment-cta .cta-icon svg {
-        width: 40px;
-        height: 40px;
     }
     
     .investment-cta .cta-content h3 {
-        font-size: 16px;
-        margin-bottom: 10px;
+        font-size: 20px;
     }
     
     .investment-cta .cta-content p {
-        font-size: 13px;
-        margin-bottom: 16px;
-        line-height: 1.5;
-    }
-    
-    .investment-cta .cta-buttons {
-        gap: 10px;
-    }
-    
-    .investment-cta .btn {
-        padding: 12px 16px;
-        font-size: 13px;
-        border-radius: 8px;
-    }
-    
-    .investment-cta .btn-icon {
-        font-size: 16px;
-    }
-}
-
-/* 超小屏幕优化 */
-@media (max-width: 360px) {
-    .investment-cta {
-        padding: 12px;
-        margin: 16px 0;
-    }
-    
-    .investment-cta .cta-container {
-        gap: 12px;
-    }
-    
-    .investment-cta .cta-content h3 {
         font-size: 15px;
-        margin-bottom: 8px;
-    }
-    
-    .investment-cta .cta-content p {
-        font-size: 12px;
-        margin-bottom: 12px;
-    }
-    
-    .investment-cta .cta-buttons {
-        gap: 8px;
-    }
-    
-    .investment-cta .btn {
-        padding: 10px 12px;
-        font-size: 12px;
     }
 }
+
+
 </style>
