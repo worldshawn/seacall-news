@@ -1640,10 +1640,10 @@ a:hover {
 
 /* Investment CTA Component Constraints */
 .post .investment-cta {
-    max-width: 760px !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 32px 0 !important;
     box-sizing: border-box !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
 }
 
 .post .investment-cta * {
@@ -1654,10 +1654,34 @@ a:hover {
 .post .cta-container {
     width: 100% !important;
     max-width: 100% !important;
+    display: flex !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+}
+
+.post .cta-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+.post .cta-content h3,
+.post .cta-content p {
+    max-width: 100% !important;
+    word-wrap: break-word !important;
+    hyphens: auto !important;
 }
 
 @media (min-width: 1200px) {
     .post .investment-cta {
-        max-width: 800px !important;
+        margin: 40px 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .post .cta-container {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 16px !important;
     }
 }

@@ -116,29 +116,17 @@
 </div>
 
 <style>
-/* 全局重置 - 确保CTA组件内所有文字水平显示 */
-.investment-cta,
-.investment-cta *,
-.investment-cta *::before,
-.investment-cta *::after {
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif !important;
-}
-
 .investment-cta {
     background: linear-gradient(135deg, #EBF8FF 0%, #E0E7FF 100%);
     border: 2px solid #3B82F6;
     border-radius: 16px;
     padding: 24px;
-    margin: 32px auto;
+    margin: 32px 0;
     box-shadow: 0 8px 32px rgba(59, 130, 246, 0.12);
     position: relative;
-    overflow: hidden;
     width: 100%;
-    max-width: 760px;
     box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
 }
 
 .investment-cta::before {
@@ -156,19 +144,6 @@
     gap: 20px;
     align-items: flex-start;
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-@media (min-width: 769px) {
-    .cta-container {
-        gap: 24px;
-    }
-    
-    .cta-content {
-        flex: 1;
-        min-width: 0;
-    }
 }
 
 .cta-icon {
@@ -179,20 +154,17 @@
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
 }
 
+.cta-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .cta-content h3 {
     color: #1E40AF;
     font-size: 22px;
     font-weight: 700;
     margin: 0 0 16px 0;
     line-height: 1.3;
-    max-width: 100%;
-    word-wrap: break-word;
-    hyphens: auto;
-    /* 强制水平文字显示 */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
-    display: block !important;
 }
 
 .cta-content p {
@@ -200,14 +172,6 @@
     font-size: 16px;
     line-height: 1.6;
     margin: 0 0 24px 0;
-    max-width: 100%;
-    word-wrap: break-word;
-    hyphens: auto;
-    /* 强制水平文字显示 */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
-    display: block !important;
 }
 
 .cta-features {
@@ -222,10 +186,6 @@
     color: #4B5563;
     font-size: 15px;
     font-weight: 500;
-    /* 强制水平文字显示 */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
 }
 
 .feature-icon {
@@ -258,10 +218,6 @@
     font-size: 16px;
     display: block;
     margin-bottom: 8px;
-    /* 强制水平文字显示 */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
 }
 
 .rec-content p {
@@ -269,10 +225,6 @@
     font-size: 14px;
     line-height: 1.5;
     margin: 0;
-    /* 强制水平文字显示 */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
 }
 
 .cta-buttons {
@@ -280,14 +232,6 @@
     gap: 16px;
     flex-wrap: wrap;
     margin-bottom: 24px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-@media (min-width: 769px) {
-    .cta-buttons {
-        flex-wrap: nowrap;
-    }
 }
 
 .btn {
@@ -304,13 +248,8 @@
     box-sizing: border-box;
     flex: 1;
     min-width: 160px;
-    max-width: 220px;
     text-align: center;
     white-space: nowrap;
-    /* 强制水平文字显示 */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    direction: ltr !important;
 }
 
 .btn-icon {
@@ -349,13 +288,7 @@
     flex-wrap: wrap;
     padding-top: 20px;
     border-top: 1px solid #E5E7EB;
-    justify-content: flex-start;
-}
-
-@media (min-width: 769px) {
-    .cta-trust-indicators {
-        justify-content: space-between;
-    }
+    justify-content: space-between;
 }
 
 .trust-item {
@@ -374,8 +307,7 @@
 @media (max-width: 768px) {
     .investment-cta {
         padding: 20px;
-        margin: 24px auto;
-        max-width: 100%;
+        margin: 24px 0;
     }
     
     .cta-container {
@@ -385,16 +317,13 @@
     }
     
     .cta-buttons {
-        justify-content: center;
         flex-direction: column;
         gap: 12px;
     }
     
     .btn {
         width: 100%;
-        max-width: 280px;
         min-width: auto;
-        margin: 0 auto;
     }
     
     .cta-trust-indicators {
@@ -418,46 +347,13 @@
 }
 
 @media (max-width: 480px) {
-    .cta-features {
-        text-align: left;
-    }
-    
-    .feature {
-        font-size: 14px;
+    .trust-item {
+        font-size: 12px;
     }
     
     .smart-recommendations {
         padding: 16px;
     }
-    
-    .trust-item {
-        font-size: 12px;
-    }
 }
-
-@media (min-width: 1200px) {
-    .investment-cta {
-        max-width: 800px;
-        padding: 32px;
-    }
-    
-    .cta-container {
-        gap: 32px;
-    }
-    
-    .cta-content h3 {
-        font-size: 24px;
-    }
-    
-    .cta-content p {
-        font-size: 17px;
-        line-height: 1.7;
-    }
-    
-    .btn {
-        padding: 18px 28px;
-        font-size: 16px;
-        max-width: 240px;
-    }
-}
+</style>
 </style>
