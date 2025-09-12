@@ -1,0 +1,269 @@
+---
+layout: default
+title: "新闻"
+permalink: /news/
+---
+
+<div class="news-page">
+    <div class="container">
+        <header class="page-header">
+            <h1>所有新闻</h1>
+            <p class="page-description">最新的越南投资资讯和市场动态</p>
+        </header>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-category="all">全部</button>
+            <button class="filter-tab" data-category="vietnam-policy">越南政策</button>
+            <button class="filter-tab" data-category="market-analysis">市场分析</button>
+            <button class="filter-tab" data-category="investment-news">投资资讯</button>
+            <button class="filter-tab" data-category="industry-insights">行业洞察</button>
+        </div>
+
+        <div class="posts-container">
+            {% if site.posts.size > 0 %}
+                <div class="posts-grid">
+                    {% for post in site.posts %}
+                    <article class="post-card" data-category="{{ post.category }}">
+                        {% if post.image %}
+                        <div class="post-image">
+                            <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="category category-{{ post.category }}">
+                                    {% case post.category %}
+                                    {% when 'vietnam-policy' %}越南政策
+                                    {% when 'market-analysis' %}市场分析
+                                    {% when 'investment-news' %}投资资讯
+                                    {% when 'industry-insights' %}行业洞察
+                                    {% else %}{{ post.category | replace: '-', ' ' | capitalize }}
+                                    {% endcase %}
+                                </span>
+                                <time datetime="{{ post.date | date_to_xmlschema }}">
+                                    {{ post.date | date: "%Y年%m月%d日" }}
+                                </time>
+                            </div>
+                            
+                            <h2 class="post-title">
+                                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                            </h2>
+                            
+                            {% if post.excerpt %}
+                            <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 150 }}</p>
+                            {% endif %}
+                            
+                            <a href="{{ post.url | relative_url }}" class="read-more">阅读更多</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-posts">
+                    <p>暂无文章</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.news-page {
+    padding: 2rem 0;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-header h1 {
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.page-description {
+    color: #6B7280;
+    font-size: 1.125rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.filter-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 10px 20px;
+    border: 2px solid #E5E7EB;
+    background: white;
+    color: #6B7280;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+    border-color: #3B82F6;
+    background: #3B82F6;
+    color: white;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.post-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.post-card.hidden {
+    display: none;
+}
+
+.post-image {
+    height: 200px;
+    overflow: hidden;
+}
+
+.post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-content {
+    padding: 1.5rem;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.category {
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.category-vietnam-policy {
+    background: #3B82F6;
+}
+
+.category-market-analysis {
+    background: #10B981;
+}
+
+.category-investment-news {
+    background: #F59E0B;
+}
+
+.category-industry-insights {
+    background: #8B5CF6;
+}
+
+.post-title {
+    margin-bottom: 1rem;
+}
+
+.post-title a {
+    color: #1F2937;
+    text-decoration: none;
+}
+
+.post-title a:hover {
+    color: #3B82F6;
+}
+
+.post-excerpt {
+    color: #6B7280;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.read-more {
+    color: #3B82F6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.no-posts {
+    text-align: center;
+    padding: 3rem;
+    color: #6B7280;
+}
+
+@media (max-width: 768px) {
+    .posts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .post-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .filter-tabs {
+        gap: 0.5rem;
+    }
+    
+    .filter-tab {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const postCards = document.querySelectorAll('.post-card');
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const category = this.dataset.category;
+            
+            // 更新活动标签
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // 过滤文章
+            postCards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        });
+    });
+});
+</script>
