@@ -68,6 +68,7 @@ a:hover {
 .header-brand {
     display: flex;
     align-items: center;
+    margin-right: 20px;
 }
 
 .brand-link {
@@ -163,6 +164,7 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-left: 20px;
 }
 
 .search-box {
@@ -428,8 +430,13 @@ a:hover {
         font-size: 0.9rem;
     }
     
+    .header-brand {
+        margin-right: 15px;
+    }
+    
     .header-actions {
         gap: 0.75rem;
+        margin-left: 15px;
     }
     
     #search-input {
@@ -448,8 +455,13 @@ a:hover {
         font-size: 0.85rem;
     }
     
+    .header-brand {
+        margin-right: 10px;
+    }
+    
     .header-actions {
         gap: 0.5rem;
+        margin-left: 10px;
     }
     
     #search-input {
@@ -466,6 +478,14 @@ a:hover {
 @media (max-width: 768px) {
     .header-container {
         padding: 0 15px;
+    }
+    
+    .header-brand {
+        margin-right: 0;
+    }
+    
+    .header-actions {
+        margin-left: 0;
     }
     
     .nav-toggle {
