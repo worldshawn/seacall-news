@@ -47,11 +47,15 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
+  - vendor/
   - README.md
   - package.json
   - package-lock.json
   - collect-rss.js
   - .gitignore
+  - .bundle/
+  - .git/
+  - .sass-cache/
 
 # 集合设置
 collections:
