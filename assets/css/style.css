@@ -968,7 +968,7 @@ a:hover {
 
 .footer-main {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     padding: 3rem 0;
     border-bottom: 1px solid #374151;
@@ -1175,19 +1175,10 @@ a:hover {
 }
 
 /* Footer Responsive Design */
-/* 大屏幕平板 */
-@media (max-width: 1024px) {
-    .footer-main {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.5rem;
-    }
-}
-
-/* 中等屏幕 - 小平板/大手机横屏 */
 @media (max-width: 768px) {
     .footer-main {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
+        gap: 2rem;
         padding: 2rem 0;
     }
     
@@ -1208,46 +1199,12 @@ a:hover {
     .rss-feed {
         justify-content: center;
     }
-}
-
-/* 手机端 - 优化为2-3列布局 */
-@media (max-width: 576px) {
-    .footer-main {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 1.25rem;
-        padding: 1.5rem 0;
-    }
-    
-    .footer-section h4 {
-        font-size: 1rem;
-        margin-bottom: 0.75rem;
-    }
-    
-    .footer-links a {
-        font-size: 0.85rem;
-    }
-    
-    .footer-links li {
-        margin-bottom: 0.5rem;
-    }
     
     .back-to-top {
         bottom: 20px;
         right: 20px;
         width: 45px;
         height: 45px;
-    }
-}
-
-/* 超小屏幕 - 仅在必要时使用单列 */
-@media (max-width: 360px) {
-    .footer-main {
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    
-    .footer-about {
-        grid-column: 1 / -1;
     }
 }
 
