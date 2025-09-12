@@ -1,11 +1,4 @@
-/* CSS Reset - 修复布局问题 */
-
-/* 防止重复元素显示 */
-.site-header + .site-header,
-.main-nav + .main-nav,
-.header-container + .header-container {
-    display: none !important;
-}
+/* CSS Reset - 基础重置和布局样式 */
 
 /* 基础重置 */
 * {
