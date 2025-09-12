@@ -82,12 +82,12 @@
             
             <div class="cta-buttons">
                 <a href="{{ site.newseacall.main_site }}/analysis?news={{ page.slug | default: page.title | slugify }}&category={{ page.category }}&utm_source=news&utm_medium=cta&utm_campaign=investment_insights" 
-                   class="btn btn-primary" target="_blank" onclick="trackCTAClick('ai_analysis', '{{ page.slug | default: page.title | slugify }}')">
+                   class="btn btn-primary" target="_blank" onclick="if(window.gtagAnalytics) window.gtagAnalytics.trackCTAClick('ai_analysis', '{{ page.slug | default: page.title | slugify }}'); else if(window.trackCTAClick) trackCTAClick('ai_analysis', '{{ page.slug | default: page.title | slugify }}');">
                     <span class="btn-icon">🤖</span>
                     获取AI投资分析
                 </a>
                 <a href="{{ site.newseacall.main_site }}/chat?context={{ page.title | url_encode }}&category={{ page.category }}&utm_source=news&utm_medium=cta&utm_campaign=chat" 
-                   class="btn btn-secondary" target="_blank" onclick="trackCTAClick('ai_chat', '{{ page.slug | default: page.title | slugify }}')">
+                   class="btn btn-secondary" target="_blank" onclick="if(window.gtagAnalytics) window.gtagAnalytics.trackCTAClick('ai_chat', '{{ page.slug | default: page.title | slugify }}'); else if(window.trackCTAClick) trackCTAClick('ai_chat', '{{ page.slug | default: page.title | slugify }}');">
                     <span class="btn-icon">💬</span>
                     AI顾问咨询
                 </a>
