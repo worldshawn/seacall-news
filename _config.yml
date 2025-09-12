@@ -35,12 +35,12 @@ newseacall:
   api_endpoint: https://api.newseacall.com
   contact_email: contact@newseacall.com
 
-# 分类设置
-categories:
-  - vietnam-policy      # 越南政策
-  - market-analysis     # 市场分析
-  - investment-news     # 投资新闻
-  - industry-insights   # 行业洞察
+# 分类设置 - 注释掉，让Jekyll自动从文章中提取分类
+# categories:
+#   - vietnam-policy      # 越南政策
+#   - market-analysis     # 市场分析
+#   - investment-news     # 投资新闻
+#   - industry-insights   # 行业洞察
 
 # 构建设置
 exclude:

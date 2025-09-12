@@ -83,10 +83,12 @@ layout: default
     <section class="category-nav">
         <h3>分类浏览</h3>
         <div class="category-grid">
-            {% for category in site.categories %}
-            <a href="/category/{{ category }}/" class="category-card">
+            {% assign predefined_categories = "vietnam-policy,market-analysis,investment-news,industry-insights" | split: "," %}
+            {% for category_name in predefined_categories %}
+            {% assign category_posts = site.posts | where: "category", category_name %}
+            <a href="/category/{{ category_name }}/" class="category-card">
                 <div class="category-icon">
-                    {% case category %}
+                    {% case category_name %}
                     {% when 'vietnam-policy' %}📋
                     {% when 'market-analysis' %}📊
                     {% when 'investment-news' %}💰
@@ -95,16 +97,16 @@ layout: default
                     {% endcase %}
                 </div>
                 <h4>
-                    {% case category %}
+                    {% case category_name %}
                     {% when 'vietnam-policy' %}越南政策
                     {% when 'market-analysis' %}市场分析
                     {% when 'investment-news' %}投资新闻
                     {% when 'industry-insights' %}行业洞察
-                    {% else %}{{ category | replace: '-', ' ' | capitalize }}
+                    {% else %}{{ category_name | replace: '-', ' ' | capitalize }}
                     {% endcase %}
                 </h4>
                 <span class="post-count">
-                    {{ site.posts | where: "category", category | size }} 篇文章
+                    {{ category_posts | size }} 篇文章
                 </span>
             </a>
             {% endfor %}
