@@ -2,11 +2,7 @@ backend:
   name: github
   repo: worldshawn/seacall-news
   branch: main
-  site_domain: news.aiwai.net  # 您的站点域名
-  auth_endpoint: https://github.com/login/oauth/authorize
   base_url: https://netlify-cms-oauth-dun.vercel.app # 您的认证代理URL
-  # 使用您获得的Client ID替换下面的值
-  app_id: Iv23lioSDAm106VwrrAz  
 
 # 本地开发配置
 local_backend: true
