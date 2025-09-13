@@ -1,0 +1,22 @@
+main:
+  - title: "首页"
+    url: "/"
+    external: false
+  - title: "新闻"
+    url: "/news/"
+    external: false
+  - title: "政策分析"
+    url: "/category/vietnam-policy/"
+    external: false
+  - title: "市场分析"
+    url: "/category/market-analysis/"
+    external: false
+  - title: "投资资讯"
+    url: "/category/investment-news/"
+    external: false
+  - title: "行业洞察"
+    url: "/category/industry-insights/"
+    external: false
+  - title: "关于我们"
+    url: "/about/"
+    external: false

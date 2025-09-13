@@ -4,13 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>新闻内容管理 - seacall</title>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
     <!-- 包含构建脚本 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     
     <script>
+        // 初始化CMS配置
+        CMS.init({
+            config: {
+                backend: {
+                    name: 'github',
+                    repo: 'worldshawn/seacall-news',
+                    branch: 'main'
+                }
+            }
+        });
+        
         // 配置编辑器预览
         CMS.registerPreviewTemplate("news", ({ entry, widgetFor, widgetsFor }) => {
             const title = entry.getIn(["data", "title"]);

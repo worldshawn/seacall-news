@@ -174,7 +174,8 @@ seacall:
 
 ```yaml
 backend:
-  name: git-gateway
+  name: github
+  repo: worldshawn/seacall-news
   branch: main
 
 collections:
@@ -183,6 +184,28 @@ collections:
     folder: "_posts"
     create: true
 ```
+
+### Decap CMS部署选项
+
+Decap CMS支持多种部署方式，不一定要部署到Netlify：
+
+1. **Git Gateway方式**（默认配置，需要Netlify）
+   - 需要Netlify账户和Identity服务
+   - 适合需要Netlify其他功能的场景
+
+2. **GitHub直接方式**（推荐用于GitHub Pages）
+   - 直接使用GitHub API
+   - 需要创建GitHub OAuth应用
+   - 需要认证代理服务器来处理Client Secret
+   - 参考配置文件：`admin/config.yml`
+   - 详细配置指南：`admin/GITHUB_AUTH_COMPLETE.md`
+
+3. **本地开发方式**
+   - 仅用于本地开发测试
+   - 设置`local_backend: true`
+   - 无需在线认证
+
+**重要提示**：GitHub后端需要认证代理来安全处理OAuth流程，因为Client Secret不能直接暴露在前端配置中。请参考`admin/GITHUB_AUTH_COMPLETE.md`了解更多详情。
 
 ## 📈 SEO优化
 
