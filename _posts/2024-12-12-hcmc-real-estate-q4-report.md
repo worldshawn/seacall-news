@@ -1,14 +1,20 @@
 ---
 layout: post
-title: "胡志明市房地产市场Q4报告：外资回流推动高端物业需求激增"
+title: 胡志明市房地产市场Q4报告：外资回流推动高端物业需求激增
 date: 2024-12-12 10:15:00 +0700
 category: market-analysis
-tags: ["vietnam", "real-estate", "ho-chi-minh-city", "foreign-investment", "market-analysis"]
-source_url: "https://example.com/hcmc-real-estate-q4-report"
-author: "seacall Team"
-excerpt: "最新发布的胡志明市房地产市场Q4报告显示，外资回流趋势明显，高端商业地产和住宅需求大幅增长，平均价格同比上涨12.5%，市场信心指数创2021年以来新高。"
+tags:
+  - vietnam
+  - real-estate
+  - ho-chi-minh-city
+  - foreign-investment
+  - market-analysis
+excerpt: 最新发布的胡志明市房地产市场Q4报告显示，外资回流趋势明显，高端商业地产和住宅需求大幅增长，平均价格同比上涨12.5%，市场信心指数创2021年以来新高。
+image: /assets/images/uploads/vn001.png
+source_url: https://example.com/hcmc-real-estate-q4-report
+author: seacall Team
 featured: true
-keywords: "胡志明市, 房地产, 市场分析, 外资投资, 物业价格"
+keywords: 胡志明市, 房地产, 市场分析, 外资投资, 物业价格
 ---
 
 ## 市场概况
