@@ -11,7 +11,7 @@
     
     <script>
         // 配置编辑器预览
-        CMS.registerPreviewTemplate("posts", ({ entry, widgetFor, widgetsFor }) => {
+        CMS.registerPreviewTemplate("news", ({ entry, widgetFor, widgetsFor }) => {
             const title = entry.getIn(["data", "title"]);
             const body = widgetFor("body");
             const date = entry.getIn(["data", "date"]);

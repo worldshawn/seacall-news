@@ -17,7 +17,7 @@ public_folder: "/assets/images/uploads"
 # 站点配置
 site_url: https://news.aiwai.net
 display_url: https://news.aiwai.net
-logo_url: https://news.aiwai.net/assets/images/logo.png
+logo_url: https://news.aiwai.net/assets/images/favicon.svg
 
 # 编辑器配置
 editor:
