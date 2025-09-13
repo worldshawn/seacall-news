@@ -9,7 +9,7 @@
 3. 点击"New OAuth App"
 4. 填写以下信息：
    - Application name: `seacall News CMS`
-   - Homepage URL: `https://news.aiwai.net`
+   - Homepage URL: `https://www.aiwai.net`
    - Authorization callback URL: `https://netlify-cms-oauth-dun.vercel.app/callback` (使用认证代理的回调URL)
 5. 点击"Register application"
 6. 记录下生成的`Client ID`和`Client Secret`

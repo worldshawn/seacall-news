@@ -12,7 +12,7 @@
 ### 2. GitHub OAuth应用配置
 - [x] 创建了GitHub OAuth应用
 - [x] Client ID: `Iv23lioSDAm106VwrrAz`
-- [x] Homepage URL: `https://news.aiwai.net`
+- [x] Homepage URL: `https://www.aiwai.net`
 - [x] Authorization callback URL: `https://netlify-cms-oauth-dun.vercel.app/callback`
 
 ### 3. Decap CMS配置文件更新
@@ -45,7 +45,7 @@
 完成所有配置后，请按以下步骤验证系统是否正常工作：
 
 ### 1. 访问管理界面
-- [ ] 访问：https://news.aiwai.net/admin/
+- [ ] 访问：https://www.aiwai.net/admin/
 - [ ] 确认页面正常加载
 
 ### 2. GitHub登录测试

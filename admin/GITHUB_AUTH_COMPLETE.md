@@ -70,7 +70,7 @@ backend:
   name: github
   repo: worldshawn/seacall-news
   branch: main
-  site_domain: news.aiwai.net
+  site_domain: www.aiwai.net
   auth_endpoint: https://github.com/login/oauth/authorize
   app_id: Iv23lioSDAm106VwrrAz
   base_url: https://netlify-cms-oauth-dun.vercel.app  # 已添加认证代理URL

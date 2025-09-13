@@ -18,7 +18,7 @@ backend:
   name: github
   repo: worldshawn/seacall-news
   branch: main
-  site_domain: news.aiwai.net
+  site_domain: www.aiwai.net
   auth_endpoint: https://github.com/login/oauth/authorize
   app_id: Iv23lioSDAm106VwrrAz
   base_url: https://netlify-cms-oauth-dun.vercel.app  # 添加认证代理URL
@@ -58,7 +58,7 @@ CMS.init({
 `https://netlify-cms-oauth-dun.vercel.app/callback`
 
 ### 3. 测试配置
-1. 访问您的Decap CMS管理界面：https://news.aiwai.net/admin/
+1. 访问您的Decap CMS管理界面：https://www.aiwai.net/admin/
 2. 尝试使用GitHub登录
 3. 确认可以正常编辑和发布内容
 

@@ -31,13 +31,13 @@ OAUTH_GITHUB_CLIENT_SECRET=[您的新 Client Secret]
 - 等待部署完成
 
 ### 3. 清除浏览器缓存
-- 清除 `news.aiwai.net` 的浏览器缓存
+- 清除 `www.aiwai.net` 的浏览器缓存
 - 或使用无痕模式测试
 
 ## 🧪 测试步骤：
 
 ### 1. 测试登录
-1. 访问 `https://news.aiwai.net/admin`
+1. 访问 `https://www.aiwai.net/admin`
 2. 点击 "Login with GitHub"
 3. 应该正确跳转到 GitHub 授权页面
 4. 授权后应该能成功登录 CMS

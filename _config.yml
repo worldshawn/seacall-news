@@ -1,7 +1,7 @@
 # 站点基本信息
 title: SeaCall
 description: 专注越南市场的AI驱动投资分析与新闻资讯
-url: https://news.aiwai.net
+url: https://www.aiwai.net
 baseurl: ""
 
 # Jekyll设置
@@ -31,7 +31,7 @@ facebook:
 
 # 自定义变量
 seacall:
-  main_site: https://seacall.com
+  main_site: https://os.aiwai.net
   api_endpoint: https://api.seacall.com
   contact_email: contact@seacall.com
 
