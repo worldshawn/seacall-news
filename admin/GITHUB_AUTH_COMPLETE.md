@@ -20,11 +20,12 @@ GitHub后端需要一个认证代理来安全处理OAuth流程，因为Client Se
 
 ### 1. 部署认证代理
 
-您可以使用以下开源项目之一：
+您已经成功部署了认证代理到以下域名之一：
+- netlify-cms-oauth-dun.vercel.app
+- netlify-cms-oauth-git-main-momos-projects-c3fbbf41.vercel.app
+- netlify-cms-oauth-q0d8xptho-momos-projects-c3fbbf41.vercel.app
 
-1. [ublabs/netlify-cms-oauth](https://github.com/ublabs/netlify-cms-oauth) - 可在Vercel上轻松部署
-2. [njfamirm/decap-cms-github-backend](https://github.com/njfamirm/decap-cms-github-backend) - 支持Docker部署
-3. [davidejones/netlify-cms-oauth-provider-python](https://github.com/davidejones/netlify-cms-oauth-provider-python) - Python实现
+使用的开源项目是：[ublabs/netlify-cms-oauth](https://github.com/ublabs/netlify-cms-oauth)
 
 ### 2. 配置认证代理
 
@@ -41,7 +42,7 @@ backend:
   name: github
   repo: worldshawn/seacall-news
   branch: main
-  base_url: https://your-auth-proxy-url.com  # 您的认证代理URL
+  base_url: https://netlify-cms-oauth-dun.vercel.app  # 您的认证代理URL
 ```
 
 ## 方案三：使用现有的第三方认证服务
@@ -72,16 +73,18 @@ backend:
   site_domain: news.aiwai.net
   auth_endpoint: https://github.com/login/oauth/authorize
   app_id: Iv23lioSDAm106VwrrAz
+  base_url: https://netlify-cms-oauth-dun.vercel.app  # 已添加认证代理URL
 ```
 
-这个配置还不完整，缺少认证代理的设置。
+这个配置已经完整，包含了认证代理的设置。
 
 ## 推荐步骤
 
-1. 如果您希望简单快速上线，建议暂时使用`local_backend: true`进行内容管理
-2. 如果您需要完整的在线编辑功能，建议：
-   - 使用Netlify Identity方案（最简单）
-   - 或者部署自己的认证代理（更自主）
+1. 确保在认证代理部署平台（如Vercel）正确设置了环境变量：
+   - `OAUTH_GITHUB_CLIENT_ID`: Iv23lioSDAm106VwrrAz
+   - `OAUTH_GITHUB_CLIENT_SECRET`: [您的Client Secret]
+
+2. 测试Decap CMS的在线编辑功能
 
 ## 故障排除
 
