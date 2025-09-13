@@ -1,0 +1,65 @@
+# 用户角色配置文件
+# 定义不同用户的权限级别
+
+roles:
+  # 超级管理员 - 完全权限
+  admin:
+    users:
+      - worldshawn  # 仓库所有者
+    permissions:
+      - create
+      - edit
+      - delete
+      - publish
+      - unpublish
+      - manage_users
+      - manage_settings
+    collections:
+      - "*"  # 所有集合
+  
+  # 编辑者 - 内容管理权限
+  editor:
+    users:
+      # - editor_github_username
+    permissions:
+      - create
+      - edit
+      - publish
+    collections:
+      - news
+      - pages
+    restrictions:
+      - cannot_delete
+      - cannot_manage_users
+  
+  # 作者 - 基础写作权限
+  author:
+    users:
+      # - author_github_username
+    permissions:
+      - create
+      - edit
+    collections:
+      - news
+    restrictions:
+      - cannot_publish  # 需要编辑者审核
+      - cannot_delete
+      - cannot_edit_others
+
+# 工作流规则
+workflow_rules:
+  # 文章发布需要审核
+  editorial_workflow:
+    enabled: true
+    required_for:
+      - news
+    reviewers:
+      - worldshawn
+  
+  # 自动发布规则（仅限管理员）
+  auto_publish:
+    enabled_for_roles:
+      - admin
+    collections:
+      - pages
+      - data

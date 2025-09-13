@@ -199,6 +199,18 @@ collections:
 # 工作流配置
 publish_mode: editorial_workflow
 
+# 权限配置
+permissions:
+  # 只允许特定用户访问
+  users:
+    - worldshawn  # 仓库所有者
+    # - other_github_username  # 添加其他管理员用户名
+  
+  # 或者使用团队权限（如果您有 GitHub 组织）
+  # teams:
+  #   - admin-team
+  #   - editors-team
+
 # 搜索配置
 search: true
 
