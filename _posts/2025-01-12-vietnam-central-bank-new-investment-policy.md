@@ -10,7 +10,7 @@ tags:
   - technology
   - central-bank
 excerpt: 越南国家银行今日发布重要政策文件，针对外商投资设立新的优惠措施，特别是在金融科技、人工智能和可再生能源领域，预计将吸引更多国际资本流入。
-image: /assets/images/uploads/vn009.jpg
+image: /assets/images/uploads/vn005.jpg
 source_url: https://example.com/vietnam-central-bank-new-policy
 author: seacall Team
 featured: true
