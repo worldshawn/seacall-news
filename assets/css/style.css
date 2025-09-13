@@ -286,6 +286,7 @@ a:hover {
     align-items: center;
     margin-bottom: 1rem;
     font-size: 0.875rem;
+    color: #6B7280;
 }
 
 .featured-title {
@@ -294,12 +295,12 @@ a:hover {
 }
 
 .featured-title a {
-    color: white;
+    color: #1F2937;
     text-decoration: none;
 }
 
 .featured-excerpt {
-    color: rgba(255, 255, 255, 0.8);
+    color: #6B7280;
     font-size: 0.95rem;
     line-height: 1.6;
 }
