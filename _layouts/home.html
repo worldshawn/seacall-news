@@ -4,40 +4,33 @@ layout: default
 
 <div class="home-container">
     <!-- 头条新闻区域 -->
-    <section class="hero-section">
+    {% assign featured_post = site.posts | where: "featured", true | first %}
+    {% if featured_post == nil %}
+        {% assign featured_post = site.posts | first %}
+    {% endif %}
+    
+    {% if featured_post %}
+    <section class="hero-section" {% if featured_post.image %}style="background-image: url('{{ featured_post.image | relative_url }}');"{% endif %}>
+        <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">{{ site.title }}</h1>
-            <p class="hero-description">{{ site.description }}</p>
-            
-            <!-- 特色新闻轮播 -->
-            {% assign featured_posts = site.posts | where: "featured", true | limit: 3 %}
-            {% if featured_posts.size > 0 %}
-            <div class="featured-news">
-                {% for post in featured_posts %}
-                <article class="featured-item">
-                    {% if post.image %}
-                    <div class="featured-image">
-                        <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+            <div class="featured-item">
+                <div class="featured-content">
+                    <div class="featured-meta">
+                        <span class="category">{{ featured_post.category | replace: '-', ' ' | capitalize }}</span>
+                        <time datetime="{{ featured_post.date | date_to_xmlschema }}">{{ featured_post.date | date: "%Y年%m月%d日" }}</time>
                     </div>
+                    <h2 class="featured-title">
+                        <a href="{{ featured_post.url | relative_url }}">{{ featured_post.title }}</a>
+                    </h2>
+                    {% if featured_post.excerpt %}
+                    <p class="featured-excerpt">{{ featured_post.excerpt | strip_html | truncate: 150 }}</p>
                     {% endif %}
-                    <div class="featured-content">
-                        <div class="featured-meta">
-                            <span class="category">{{ post.category | replace: '-', ' ' | capitalize }}</span>
-                            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%m月%d日" }}</time>
-                        </div>
-                        <h2 class="featured-title">
-                            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-                        </h2>
-                        {% if post.excerpt %}
-                        <p class="featured-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>
-                        {% endif %}
-                    </div>
-                </article>
-                {% endfor %}
+                    <a href="{{ featured_post.url | relative_url }}" class="btn btn-primary">阅读更多</a>
+                </div>
             </div>
-            {% endif %}
         </div>
     </section>
+    {% endif %}
 
     <!-- 最新新闻列表 -->
     <section class="latest-news">

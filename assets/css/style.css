@@ -222,19 +222,93 @@ a:hover {
 }
 
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
     color: white;
-    padding: 4rem 0;
+    padding: 6rem 0;
     margin-bottom: 3rem;
     border-radius: 16px;
     margin: 0 20px 3rem;
+    min-height: 400px;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 16px;
 }
 
 .hero-content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    text-align: center;
+    position: relative;
+    width: 100%;
+}
+
+/* Featured News Item in Hero Section */
+.hero-content .featured-item {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    color: #1F2937;
+}
+
+.hero-content .featured-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.hero-content .featured-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #1F2937;
+}
+
+.hero-content .featured-title a {
+    color: #1F2937;
+    text-decoration: none;
+}
+
+.hero-content .featured-excerpt {
+    color: #6B7280;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.hero-content .btn {
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.hero-content .btn:hover {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
 }
 
 .hero-title {
@@ -242,12 +316,14 @@ a:hover {
     font-weight: 700;
     margin-bottom: 1rem;
     color: white;
+    text-align: center;
 }
 
 .hero-description {
     font-size: 1.25rem;
     margin-bottom: 2rem;
     color: rgba(255, 255, 255, 0.9);
+    text-align: center;
 }
 
 /* Featured News */
