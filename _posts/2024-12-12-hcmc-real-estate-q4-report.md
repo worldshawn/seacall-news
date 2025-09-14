@@ -13,7 +13,8 @@ excerpt: 最新发布的胡志明市房地产市场Q4报告显示，外资回流
 image: /assets/images/uploads/vn001.png
 source_url: https://example.com/hcmc-real-estate-q4-report
 author: seacall Team
-featured: true
+featured: false
+banner_featured: true
 keywords: 胡志明市, 房地产, 市场分析, 外资投资, 物业价格
 ---
 
