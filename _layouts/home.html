@@ -15,10 +15,7 @@ layout: default
         <div class="hero-content">
             <div class="featured-item">
                 <div class="featured-content">
-                    <div class="featured-meta">
-                        <span class="category">{{ featured_post.category | replace: '-', ' ' | capitalize }}</span>
-                        <time datetime="{{ featured_post.date | date_to_xmlschema }}">{{ featured_post.date | date: "%Y年%m月%d日" }}</time>
-                    </div>
+                    
                     <h2 class="featured-title">
                         <a href="{{ featured_post.url | relative_url }}">{{ featured_post.title }}</a>
                     </h2>
