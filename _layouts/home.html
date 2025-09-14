@@ -4,25 +4,31 @@ layout: default
 
 <div class="home-container">
     <!-- 头条新闻区域 -->
-    {% assign featured_post = site.posts | where: "featured", true | first %}
-    {% if featured_post == nil %}
-        {% assign featured_post = site.posts | first %}
+    {% assign banner_post = site.posts | where: "banner_featured", true | first %}
+    {% if banner_post == nil %}
+        {% assign banner_post = site.posts | where: "featured", true | first %}
+    {% endif %}
+    {% if banner_post == nil %}
+        {% assign banner_post = site.posts | first %}
     {% endif %}
     
-    {% if featured_post %}
-    <section class="hero-section" {% if featured_post.image %}style="background-image: url('{{ featured_post.image | relative_url }}');"{% endif %}>
+    {% if banner_post %}
+    <section class="hero-section" {% if banner_post.image %}style="background-image: url('{{ banner_post.image | relative_url }}');"{% endif %}>
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <div class="featured-item">
                 <div class="featured-content">
-                    
+                    <div class="featured-meta">
+                        <span class="category">{{ banner_post.category | replace: '-', ' ' | capitalize }}</span>
+                        <time datetime="{{ banner_post.date | date_to_xmlschema }}">{{ banner_post.date | date: "%Y年%m月%d日" }}</time>
+                    </div>
                     <h2 class="featured-title">
-                        <a href="{{ featured_post.url | relative_url }}">{{ featured_post.title }}</a>
+                        <a href="{{ banner_post.url | relative_url }}">{{ banner_post.title }}</a>
                     </h2>
-                    {% if featured_post.excerpt %}
-                    <p class="featured-excerpt">{{ featured_post.excerpt | strip_html | truncate: 150 }}</p>
+                    {% if banner_post.excerpt %}
+                    <p class="featured-excerpt">{{ banner_post.excerpt | strip_html | truncate: 150 }}</p>
                     {% endif %}
-                    <a href="{{ featured_post.url | relative_url }}" class="btn btn-primary">阅读更多</a>
+                    <a href="{{ banner_post.url | relative_url }}" class="btn btn-primary">阅读更多</a>
                 </div>
             </div>
         </div>

@@ -108,6 +108,13 @@ collections:
           hint: "是否在首页特色区域显示"
         }
       - { 
+          label: "首页Banner推荐", 
+          name: "banner_featured", 
+          widget: "boolean", 
+          default: false,
+          hint: "是否推荐到首页Banner区域显示（多条推荐时仅显示最新一条）"
+        }
+      - { 
           label: "SEO关键词", 
           name: "keywords", 
           widget: "string", 
