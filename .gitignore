@@ -42,3 +42,5 @@ temp/
 # Local development
 .local/
 debug.log
+QWEN.md
+test-rss.js

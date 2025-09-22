@@ -42,28 +42,59 @@ jobs:
           // RSS源配置
           const feeds = [
             {
-              url: 'https://vneconomy.vn/rss/home.rss',
-              source: 'VnEconomy',
+              url: 'https://thanhnien.vn/rss/kinh-te.rss',
+              source: 'Thanh Nien Kinh Te',
               category: 'market-analysis'
             },
             {
-              url: 'https://cafef.vn/rss/trang-chu.rss',
-              source: 'CafeF',
+              url: 'https://tuoitre.vn/rss/kinh-doanh.rss', // 使用Tuoi Tre的商业版块
+              source: 'Tuoi Tre Kinh Doanh',
               category: 'investment-news'
             },
             {
-              url: 'https://vietnamnet.vn/rss/kinh-doanh.rss',
+              url: 'https://vietnamnet.vn/kinh-doanh.rss', // 修复重定向问题
               source: 'VietnamNet',
               category: 'industry-insights'
+            },
+            {
+              url: 'https://thanhnien.vn/rss/chinh-tri.rss', // 更改为政治类别以获取政策相关内容
+              source: 'Thanh Nien Chinh Tri',
+              category: 'vietnam-policy'
             }
           ];
           
-          // 越南投资相关关键词
+          // 越南投资相关关键词 - 扩展并优化关键词列表
           const keywords = [
-            'vietnam', 'việt nam', 'investment', 'đầu tư', 'kinh tế', 'economy',
-            'thị trường', 'market', 'chính sách', 'policy', 'ngân hàng', 'bank',
-            'bất động sản', 'real estate', 'công nghệ', 'technology', 'startup',
-            'FDI', 'GDP', 'xuất khẩu', 'export', 'nhập khẩu', 'import'
+            // 国家和语言
+            'vietnam', 'việt nam', 'vietnamese', 'hanoi', 'ho chi minh', 'saigon', 'hochiminh',
+            
+            // 投资相关
+            'investment', 'invest', 'investor', 'investing', 'capital', 'funding', 'venture',
+            'đầu tư', 'vốn', 'tài chính', 'tín dụng', 'cho vay', 'dự án',
+            
+            // 经济和市场
+            'economy', 'economic', 'economist', 'kinh tế', 'kinh te', 'gdp', 'inflation', 'growth',
+            'market', 'thị trường', 'thi truong', 'stock', 'equity', 'trading', 'trade',
+            'business', 'doanh nghiệp', 'doanh nghiep', 'company', 'corporate',
+            
+            // 政策和法规
+            'policy', 'policies', 'regulation', 'regulatory', 'law', 'legal', 'chính sách', 'chinh sach',
+            'government', 'governmental', 'state', 'federal', 'central bank', 'ngân hàng', 'ngan hang',
+            'monetary', 'fiscal', 'tax', 'thuế', 'thue',
+            
+            // 行业特定
+            'bank', 'banking', 'ngân hàng', 'ngan hang', 'finance', 'financial',
+            'real estate', 'bất động sản', 'bat dong san', 'property', 'housing',
+            'technology', 'công nghệ', 'cong nghe', 'tech', 'startup', 'innovation',
+            'manufacturing', 'manufacture', 'sản xuất', 'san xuat',
+            'export', 'xuất khẩu', 'xuat khau', 'import', 'nhập khẩu', 'nhap khau',
+            'tourism', 'du lịch', 'du lich', 'hospitality',
+            'agriculture', 'nông nghiệp', 'nong nghiep', 'farming',
+            
+            // 特定术语
+            'FDI', 'foreign direct investment', 'OECD', 'ASEAN', 'APEC', 'TPP', 'RCEP',
+            'exchange rate', 'currency', 'dong', 'VNĐ', 'VND',
+            'stock exchange', 'stock market', 'HOSE', 'HNX', 'UPCOM'
           ];
           
           // 检查文章是否与投资相关
@@ -156,34 +187,57 @@ ${cleanContent}
           
           async function collectNews() {
             console.log('开始采集RSS新闻...');
+            let totalCollected = 0;
+            let totalSkipped = 0;
             
             for (const feed of feeds) {
               try {
-                console.log(`正在采集: ${feed.url}`);
+                console.log(`正在采集: ${feed.url} (${feed.source})`);
                 const parsed = await parser.parseURL(feed.url);
-                const items = parsed.items.slice(0, 3); // 每个源最多取3篇
+                console.log(`成功获取RSS源: ${feed.url}, 文章数量: ${parsed.items.length}`);
+                
+                // 增加到每个源最多取5篇
+                const items = parsed.items.slice(0, 5);
+                let feedCollected = 0;
+                let feedSkipped = 0;
                 
                 for (const item of items) {
-                  // 检查是否与投资相关
-                  if (isInvestmentRelated(item.title, item.contentSnippet || '')) {
-                    const { filename, content } = generateMarkdownContent(item, feed.source, feed.category);
-                    const filePath = path.join('_posts', filename);
-                    
-                    // 检查文件是否已存在
-                    if (!fs.existsSync(filePath)) {
-                      fs.writeFileSync(filePath, content, 'utf8');
-                      console.log(`已创建: ${filename}`);
+                  try {
+                    // 检查是否与投资相关
+                    if (isInvestmentRelated(item.title, item.contentSnippet || '')) {
+                      const { filename, content } = generateMarkdownContent(item, feed.source, feed.category);
+                      const filePath = path.join('_posts', filename);
+                      
+                      // 检查文件是否已存在
+                      if (!fs.existsSync(filePath)) {
+                        fs.writeFileSync(filePath, content, 'utf8');
+                        console.log(`✅ 已创建: ${filename}`);
+                        feedCollected++;
+                        totalCollected++;
+                      } else {
+                        console.log(`ℹ️ 已存在: ${filename}`);
+                        feedSkipped++;
+                        totalSkipped++;
+                      }
                     } else {
-                      console.log(`已存在: ${filename}`);
+                      console.log(`⏭️ 跳过不相关文章: ${item.title.substring(0, 50)}...`);
+                      feedSkipped++;
+                      totalSkipped++;
                     }
+                  } catch (itemError) {
+                    console.error(`❌ 处理文章时出错: ${item.title}`, itemError.message);
+                    feedSkipped++;
+                    totalSkipped++;
                   }
                 }
+                
+                console.log(`📊 ${feed.source} 采集完成: 新增 ${feedCollected} 篇, 跳过 ${feedSkipped} 篇`);
               } catch (error) {
-                console.error(`采集 ${feed.url} 时出错:`, error.message);
+                console.error(`❌ 采集 ${feed.url} 时出错:`, error.message);
               }
             }
             
-            console.log('RSS采集完成');
+            console.log(`🎉 RSS采集完成: 总计新增 ${totalCollected} 篇, 跳过 ${totalSkipped} 篇`);
           }
           
           collectNews().catch(console.error);
