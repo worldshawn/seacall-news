@@ -58,15 +58,23 @@ jobs:
               return null;
             }
             
-            const url = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-translation/translation';
+            const url = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
             const payload = {
-              model: 'qwen-mt-turbo',
+              model: 'qwen-mt-plus',
               input: {
-                texts: [text.substring(0, 2000)] // API支持批量，但我们一次只翻一个
+                messages: [
+                  {
+                    role: 'user',
+                    content: text.substring(0, 2000)
+                  }
+                ]
               },
               parameters: {
-                source_language: 'vi',
-                target_language: 'zh'
+                result_format: 'message',
+                translation_options: {
+                  source_lang: 'Vietnamese',
+                  target_lang: 'Chinese'
+                }
               }
             };
 
@@ -80,8 +88,8 @@ jobs:
                 timeout: 45000
               });
 
-              if (resp.data && resp.data.output && resp.data.output.translations && resp.data.output.translations.length > 0) {
-                const translatedText = resp.data.output.translations[0].translation;
+              if (resp.data && resp.data.output && resp.data.output.choices && resp.data.output.choices.length > 0) {
+                const translatedText = resp.data.output.choices[0].message.content;
                 if (translatedText && translatedText.trim()) {
                   return translatedText.trim();
                 }
