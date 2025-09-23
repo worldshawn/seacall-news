@@ -24,7 +24,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install rss-parser axios entities
+        run: npm install rss-parser axios entities cheerio
 
       - name: Collect RSS feeds
         env:
@@ -246,7 +246,23 @@ jobs:
                   try {
                     // 解码HTML实体
                     const decodedTitle = decode(item.title || '');
-                    const rawTextWithEntities = (item['content:encoded'] || item.content || item.contentSnippet || '').replace(/<[^>]*>/g, ' ');
+                    
+                    // 改进的HTML内容清理 - 保留换行结构
+                    function cleanHtmlContent(html) {
+                      if (!html) return '';
+                      
+                      // 先将块级元素和换行标签转换为换行符
+                      let cleanText = html
+                        .replace(/<\/?(p|div|br|h[1-6]|li|ul|ol|blockquote|pre)[^>]*>/gi, '\n')
+                        .replace(/<[^>]*>/g, ' ')  // 其他标签转为空格
+                        .replace(/\n\s*\n/g, '\n\n')  // 规范化多个换行
+                        .replace(/[ \t]+/g, ' ')  // 多个空格合并为一个
+                        .replace(/^\s+|\s+$/g, '');  // 去除首尾空白
+                      
+                      return cleanText;
+                    }
+                    
+                    const rawTextWithEntities = cleanHtmlContent(item['content:encoded'] || item.content || item.contentSnippet || '');
                     const decodedRawText = decode(rawTextWithEntities);
 
                     // 检查是否与投资相关
