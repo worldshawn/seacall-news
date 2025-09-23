@@ -24,20 +24,58 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install rss-parser
+        run: npm install rss-parser axios
 
       - name: Collect RSS feeds
+        env:
+          HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
         run: |
           cat > collect-rss.js << 'EOF'
           const Parser = require('rss-parser');
           const fs = require('fs');
           const path = require('path');
+          const axios = require('axios');
           
           const parser = new Parser({
             customFields: {
               item: ['content:encoded', 'content']
+            },
+            requestOptions: {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36'
+              },
+              timeout: 15000
             }
           });
+          
+          const HF_API_TOKEN = process.env.HUGGINGFACE_API_TOKEN;
+          const enableTranslate = !!HF_API_TOKEN;
+          
+          async function translateTextWithHF(text, from = 'vi', to = 'zh') {
+            if (!enableTranslate || !text || !text.trim()) return null;
+            try {
+              const url = 'https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-vi-zh';
+              const payload = { inputs: text.substring(0, 2000) };
+              const resp = await axios.post(url, payload, {
+                headers: {
+                  Authorization: 'Bearer ' + HF_API_TOKEN,
+                  'Content-Type': 'application/json'
+                },
+                timeout: 30000
+              });
+              const data = resp.data;
+              if (Array.isArray(data)) {
+                const t = data[0] && (data[0].translation_text || data[0].generated_text);
+                return t || null;
+              }
+              if (typeof data === 'string') return data;
+              if (data && data.generated_text) return data.generated_text;
+              return null;
+            } catch (e) {
+              console.error('HF翻译失败：', e.response?.status, e.message);
+              return null;
+            }
+          }
           
           // RSS源配置
           const feeds = [
@@ -124,53 +162,41 @@ jobs:
             return tagMap[category] || ['vietnam', 'news'];
           }
           
-          // 生成Markdown内容
-          function generateMarkdownContent(item, feedSource, category) {
+          // 生成Markdown内容（支持双语）
+          function generateMarkdownContent(item, feedSource, category, zhTitle, zhContent) {
             const date = new Date();
-            const slug = generateSlug(item.title);
-            const timePart = `${String(date.getHours()).padStart(2,'0')}${String(date.getMinutes()).padStart(2,'0')}${String(date.getSeconds()).padStart(2,'0')}`;
-            const filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${timePart}-${slug}.md`;
+            const slug = generateSlug(zhTitle || item.title);
+            const timePart = String(date.getHours()).padStart(2,'0') + String(date.getMinutes()).padStart(2,'0') + String(date.getSeconds()).padStart(2,'0');
+            const filename = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0') + '-' + timePart + '-' + slug + '.md';
             
             const tags = getCategoryTags(category);
             const content = item['content:encoded'] || item.content || item.contentSnippet || '';
-            const cleanContent = content.replace(/<[^>]*>/g, '').substring(0, 500);
+            const cleanContent = content.replace(/<[^>]*>/g, '').substring(0, 2000);
+            
+            const titleEsc = (zhTitle || item.title).replace(/"/g, '\\"');
+            const excerptBase = (zhContent || cleanContent).replace(/"/g, '\\"').substring(0, 200);
             
             const markdownContent = '---\n' +
               'layout: post\n' +
-              'title: "' + item.title.replace(/"/g, '\\"') + '"\n' +
+              'title: "' + titleEsc + '"\n' +
               'date: ' + date.toISOString().replace('T', ' ').replace(/\.\d{3}Z/, ' +0700') + '\n' +
               'category: ' + category + '\n' +
               'tags: ' + JSON.stringify(tags) + '\n' +
               'source_url: "' + item.link + '"\n' +
               'author: "seacall Team"\n' +
-              'excerpt: "' + cleanContent.replace(/"/g, '\\"') + '..."\n' +
+              'excerpt: "' + excerptBase + '..."\n' +
               'featured: false\n' +
               'keywords: "' + tags.join(', ') + '"\n' +
+              'lang: vi\n' +
+              (zhContent ? 'translated: true\ntranslated_lang: zh-Hans\n' : 'translated: false\n') +
               '---\n\n' +
-              '## 新闻摘要\n\n' +
-              cleanContent + '\n\n' +
-              '## 投资角度分析\n\n' +
-              '### 📊 市场影响\n' +
-              '根据这一新闻，可能对相关市场产生以下影响：\n' +
-              '- **短期影响**：市场情绪变化，相关股票波动\n' +
-              '- **中期影响**：行业政策调整，投资机会涌现\n' +
-              '- **长期影响**：结构性变化，产业格局重塑\n\n' +
-              '### 💡 投资机会\n' +
-              '基于新闻内容，我们识别出以下潜在投资机会：\n' +
-              '- **直接机会**：相关上市公司、行业龙头\n' +
-              '- **间接机会**：供应链企业、配套服务商\n' +
-              '- **新兴机会**：技术创新、商业模式变化\n\n' +
-              '### ⚠️ 风险提示\n' +
-              '投资者需要注意的风险因素：\n' +
-              '- **政策风险**：政府政策变化的不确定性\n' +
-              '- **市场风险**：市场波动和竞争加剧\n' +
-              '- **操作风险**：投资时机和规模控制\n\n' +
-              '## 相关资源\n\n' +
+              (zhContent ? '## 中文译文\n\n' + zhContent + '\n\n---\n\n' : '') +
+              '## 原文（越南语）\n\n' + cleanContent + '\n\n' +
+              '## 相关信息\n\n' +
               '- **原文链接**：[查看完整新闻](' + item.link + ')\n' +
               '- **新闻来源**：' + feedSource + '\n' +
               '- **发布时间**：' + new Date(item.pubDate || date).toLocaleDateString('zh-CN') + '\n\n' +
-              '> **投资建议**：以上分析仅供参考，投资决策需要综合考虑个人风险承受能力和投资目标。建议咨询专业投资顾问。\n\n' +
-              '*想要获取更专业的投资分析和建议？点击下方按钮体验seacall AI投资顾问服务。*';
+              '*想要获取更专业的投资分析和建议？欢迎体验 seacall AI 投资顾问服务。*';
             
             return { filename, content: markdownContent };
           }
@@ -193,9 +219,23 @@ jobs:
                 
                 for (const item of items) {
                   try {
+                    const rawText = (item['content:encoded'] || item.content || item.contentSnippet || '').replace(/<[^>]*>/g, ' ');
                     // 检查是否与投资相关
-                    if (isInvestmentRelated(item.title, item['content:encoded'] || item.content || item.contentSnippet || '')) {
-                      const { filename, content } = generateMarkdownContent(item, feed.source, feed.category);
+                    if (isInvestmentRelated(item.title, rawText)) {
+                      let zhTitle = null, zhContent = null;
+                      
+                      // 尝试翻译（如果配置了HF token）
+                      if (enableTranslate) {
+                        console.log(`🔄 正在翻译: ${item.title.substring(0, 30)}...`);
+                        zhTitle = await translateTextWithHF(item.title);
+                        const viContentForTrans = rawText.substring(0, 1500);
+                        zhContent = await translateTextWithHF(viContentForTrans);
+                        
+                        if (zhTitle) console.log(`✅ 标题翻译完成`);
+                        if (zhContent) console.log(`✅ 内容翻译完成`);
+                      }
+                      
+                      const { filename, content } = generateMarkdownContent(item, feed.source, feed.category, zhTitle, zhContent);
                       const filePath = path.join('_posts', filename);
                       
                       // 检查文件是否已存在
