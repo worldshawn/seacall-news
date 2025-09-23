@@ -53,65 +53,66 @@ jobs:
           
           async function translateTextWithHF(text, from = 'vi', to = 'zh') {
             if (!enableTranslate || !text || !text.trim()) return null;
-            try {
-              // 优先使用 Helsinki-NLP 越南语到中文模型
-              const url = 'https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-vi-zh';
-              const payload = { inputs: text.substring(0, 2000) };
-              const resp = await axios.post(url, payload, {
-                headers: {
-                  Authorization: 'Bearer ' + HF_API_TOKEN,
-                  'Content-Type': 'application/json'
-                },
-                timeout: 30000
-              });
-              const data = resp.data;
-              if (Array.isArray(data)) {
-                const t = data[0] && (data[0].translation_text || data[0].generated_text);
-                return t || null;
-              }
-              if (typeof data === 'string') return data;
-              if (data && data.generated_text) return data.generated_text;
-              if (data && data.translation_text) return data.translation_text;
-              return null;
-            } catch (e) {
-              console.error('Helsinki模型翻译失败：', e.response?.status, e.response?.data || e.message);
-              // 如果Helsinki模型不可用，尝试备用的NLLB模型
-              if (e.response?.status === 404 || e.response?.status === 503) {
-                console.log('尝试备用NLLB模型...');
-                return await translateWithNLLB(text);
-              }
-              return null;
-            }
-          }
-          
-          async function translateWithNLLB(text) {
-            try {
-              // 备用模型：NLLB多语言模型
-              const url = 'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M';
-              const payload = {
-                inputs: text.substring(0, 1500),
-                parameters: {
-                  src_lang: 'vie_Latn',
-                  tgt_lang: 'zho_Hans'
+            
+            // 尝试多个可用的翻译模型
+            const models = [
+              {
+                name: 'T5 Base',
+                url: 'https://api-inference.huggingface.co/models/google/t5-base',
+                payload: { inputs: 'translate Vietnamese to Chinese: ' + text.substring(0, 1000) }
+              },
+              {
+                name: 'mT5 Small', 
+                url: 'https://api-inference.huggingface.co/models/google/mt5-small',
+                payload: { inputs: 'translate Vietnamese to Chinese: ' + text.substring(0, 1000) }
+              },
+              {
+                name: 'NLLB Distilled',
+                url: 'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M',
+                payload: {
+                  inputs: text.substring(0, 1200),
+                  parameters: { src_lang: 'vie_Latn', tgt_lang: 'zho_Hans' }
                 }
-              };
-              const resp = await axios.post(url, payload, {
-                headers: {
-                  Authorization: 'Bearer ' + HF_API_TOKEN,
-                  'Content-Type': 'application/json'
-                },
-                timeout: 45000
-              });
-              const data = resp.data;
-              if (Array.isArray(data)) {
-                const t = data[0] && (data[0].translation_text || data[0].generated_text);
-                return t || null;
               }
-              return data?.generated_text || data?.translation_text || null;
-            } catch (e) {
-              console.error('NLLB备用翻译也失败：', e.response?.status, e.message);
-              return null;
+            ];
+            
+            for (const model of models) {
+              try {
+                console.log('尝试模型:', model.name);
+                const resp = await axios.post(model.url, model.payload, {
+                  headers: {
+                    Authorization: 'Bearer ' + HF_API_TOKEN,
+                    'Content-Type': 'application/json'
+                  },
+                  timeout: 60000
+                });
+                
+                const data = resp.data;
+                let result = null;
+                
+                if (Array.isArray(data)) {
+                  result = data[0] && (data[0].translation_text || data[0].generated_text);
+                } else if (typeof data === 'string') {
+                  result = data;
+                } else if (data && (data.generated_text || data.translation_text)) {
+                  result = data.generated_text || data.translation_text;
+                }
+                
+                if (result && result.trim()) {
+                  console.log('✅ 翻译成功，使用模型:', model.name);
+                  return result.trim();
+                }
+              } catch (e) {
+                console.error(model.name + '翻译失败：', e.response?.status, e.response?.statusText);
+                if (e.response?.data) {
+                  console.error('错误详情:', JSON.stringify(e.response.data).substring(0, 200));
+                }
+                continue; // 尝试下一个模型
+              }
             }
+            
+            console.error('所有翻译模型都失败了');
+            return null;
           }
           
           // RSS源配置
