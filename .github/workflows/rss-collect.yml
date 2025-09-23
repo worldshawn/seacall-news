@@ -258,16 +258,14 @@ jobs:
                     if (isInvestmentRelated(item.title, rawText)) {
                       let zhTitle = null, zhContent = null;
                       
-                      // 尝试翻译（如果配置了HF token）
-                      if (enableTranslate) {
-                        console.log(`🔄 正在翻译: ${item.title.substring(0, 30)}...`);
-                        zhTitle = await translateTextWithHF(item.title);
-                        const viContentForTrans = rawText.substring(0, 1500);
-                        zhContent = await translateTextWithHF(viContentForTrans);
-                        
-                        if (zhTitle) console.log(`✅ 标题翻译完成`);
-                        if (zhContent) console.log(`✅ 内容翻译完成`);
-                      }
+                      // 尝试翻译（先 LibreTranslate，再 HF）
+                      console.log(`🔄 正在翻译: ${item.title.substring(0, 30)}...`);
+                      zhTitle = await translateTextUnified(item.title);
+                      const viContentForTrans = rawText.substring(0, 1500);
+                      zhContent = await translateTextUnified(viContentForTrans);
+                      
+                      if (zhTitle) console.log(`✅ 标题翻译完成`);
+                      if (zhContent) console.log(`✅ 内容翻译完成`);
                       
                       const { filename, content } = generateMarkdownContent(item, feed.source, feed.category, zhTitle, zhContent);
                       const filePath = path.join('_posts', filename);
