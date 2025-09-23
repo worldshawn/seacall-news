@@ -54,6 +54,7 @@ jobs:
           async function translateTextWithHF(text, from = 'vi', to = 'zh') {
             if (!enableTranslate || !text || !text.trim()) return null;
             try {
+              // 优先使用 Helsinki-NLP 越南语到中文模型
               const url = 'https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-vi-zh';
               const payload = { inputs: text.substring(0, 2000) };
               const resp = await axios.post(url, payload, {
@@ -70,9 +71,45 @@ jobs:
               }
               if (typeof data === 'string') return data;
               if (data && data.generated_text) return data.generated_text;
+              if (data && data.translation_text) return data.translation_text;
               return null;
             } catch (e) {
-              console.error('HF翻译失败：', e.response?.status, e.message);
+              console.error('Helsinki模型翻译失败：', e.response?.status, e.response?.data || e.message);
+              // 如果Helsinki模型不可用，尝试备用的NLLB模型
+              if (e.response?.status === 404 || e.response?.status === 503) {
+                console.log('尝试备用NLLB模型...');
+                return await translateWithNLLB(text);
+              }
+              return null;
+            }
+          }
+          
+          async function translateWithNLLB(text) {
+            try {
+              // 备用模型：NLLB多语言模型
+              const url = 'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M';
+              const payload = {
+                inputs: text.substring(0, 1500),
+                parameters: {
+                  src_lang: 'vie_Latn',
+                  tgt_lang: 'zho_Hans'
+                }
+              };
+              const resp = await axios.post(url, payload, {
+                headers: {
+                  Authorization: 'Bearer ' + HF_API_TOKEN,
+                  'Content-Type': 'application/json'
+                },
+                timeout: 45000
+              });
+              const data = resp.data;
+              if (Array.isArray(data)) {
+                const t = data[0] && (data[0].translation_text || data[0].generated_text);
+                return t || null;
+              }
+              return data?.generated_text || data?.translation_text || null;
+            } catch (e) {
+              console.error('NLLB备用翻译也失败：', e.response?.status, e.message);
               return null;
             }
           }
