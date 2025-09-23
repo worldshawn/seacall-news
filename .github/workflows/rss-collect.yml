@@ -28,7 +28,7 @@ jobs:
 
       - name: Collect RSS feeds
         env:
-          HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
+          QWEN_API_KEY: ${{ secrets.QWEN_API_KEY }}
         run: |
           cat > collect-rss.js << 'EOF'
           const Parser = require('rss-parser');
@@ -49,73 +49,50 @@ jobs:
             }
           });
           
-          const HF_API_TOKEN = process.env.HUGGINGFACE_API_TOKEN;
-          const enableHF = !!HF_API_TOKEN;
-          
-          // 方案1：首选 LibreTranslate 公共实例（无需密钥）
-          async function translateTextWithLibre(text, from = 'vi', to = 'zh') {
-            if (!text || !text.trim()) return null;
-            try {
-              const url = 'https://libretranslate.com/translate';
-              const textToTranslate = text.substring(0, 1800);
-              if (!textToTranslate.trim()) {
-                console.log('LibreTranslate: 待翻译文本为空，跳过。');
-                return null;
+          const QWEN_API_KEY = process.env.QWEN_API_KEY;
+
+          // 使用通义千问进行翻译
+          async function translateTextWithQwen(text) {
+            if (!QWEN_API_KEY || !text || !text.trim()) {
+              if (!QWEN_API_KEY) console.log('Qwen: API Key 未配置，跳过翻译。');
+              return null;
+            }
+            
+            const url = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-translation/translation';
+            const payload = {
+              model: 'qwen-mt-turbo',
+              input: {
+                texts: [text.substring(0, 2000)] // API支持批量，但我们一次只翻一个
+              },
+              parameters: {
+                source_language: 'vi',
+                target_language: 'zh'
               }
-              console.log(`LibreTranslate: 准备翻译 -> "${textToTranslate.substring(0, 50)}..."`);
-              const payload = {
-                q: textToTranslate,
-                source: from,
-                target: to,
-                format: 'text'
-              };
+            };
+
+            try {
+              console.log(`Qwen: 准备翻译 -> "${text.substring(0, 50)}..."`);
               const resp = await axios.post(url, payload, {
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                timeout: 30000
+                headers: {
+                  'Authorization': `Bearer ${QWEN_API_KEY}`,
+                  'Content-Type': 'application/json'
+                },
+                timeout: 45000
               });
-              const out = resp.data && (resp.data.translatedText || resp.data.translation || resp.data);
-              if (typeof out === 'string') return out;
-              if (out && out.translatedText) return out.translatedText;
+
+              if (resp.data && resp.data.output && resp.data.output.translations && resp.data.output.translations.length > 0) {
+                const translatedText = resp.data.output.translations[0].translation;
+                if (translatedText && translatedText.trim()) {
+                  return translatedText.trim();
+                }
+              }
+              console.error('Qwen 翻译失败: 响应格式不正确', JSON.stringify(resp.data));
               return null;
             } catch (e) {
-              console.error('LibreTranslate 翻译失败：', e.response?.status, e.message);
+              console.error('Qwen 翻译失败:', e.response?.status, e.message);
+              if (e.response?.data) console.error('错误详情:', JSON.stringify(e.response.data));
               return null;
             }
-          }
-          
-          // 方案2：备用 Hugging Face（若网络可达）
-          async function translateTextWithHF(text, from = 'vi', to = 'zh') {
-            if (!enableHF || !text || !text.trim()) return null;
-            const models = [
-              { name: 'Helsinki vi-zh', url: 'https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-vi-zh', payload: { inputs: text.substring(0, 1200) } },
-              { name: 'NLLB', url: 'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M', payload: { inputs: text.substring(0, 1000), parameters: { src_lang: 'vie_Latn', tgt_lang: 'zho_Hans' } } }
-            ];
-            for (const m of models) {
-              try {
-                console.log('尝试 HF 模型:', m.name);
-                const resp = await axios.post(m.url, m.payload, {
-                  headers: { Authorization: 'Bearer ' + HF_API_TOKEN, 'Content-Type': 'application/json' },
-                  timeout: 45000
-                });
-                const d = resp.data;
-                let result = null;
-                if (Array.isArray(d)) result = d[0]?.translation_text || d[0]?.generated_text;
-                else result = d?.generated_text || d?.translation_text || (typeof d === 'string' ? d : null);
-                if (result && result.trim()) return result.trim();
-              } catch (e) {
-                console.error(m.name + ' 失败：', e.response?.status, e.message);
-                if (e.response?.data) console.error('错误详情:', JSON.stringify(e.response.data).substring(0,200));
-              }
-            }
-            return null;
-          }
-          
-          // 统一翻译入口：先 Libre，再 HF
-          async function translateTextUnified(text) {
-            let zh = await translateTextWithLibre(text, 'vi', 'zh');
-            if (zh && zh.trim()) return zh;
-            zh = await translateTextWithHF(text, 'vi', 'zh');
-            return zh;
           }
           
           // RSS源配置
@@ -268,11 +245,11 @@ jobs:
                     if (isInvestmentRelated(decodedTitle, decodedRawText)) {
                       let zhTitle = null, zhContent = null;
                       
-                      // 尝试翻译（先 LibreTranslate，再 HF）
-                      console.log(`🔄 正在翻译: ${decodedTitle.substring(0, 30)}...`);
-                      zhTitle = await translateTextUnified(decodedTitle);
+                      // 使用通义千问翻译
+                      console.log(`🔄 正在使用 Qwen 翻译: ${decodedTitle.substring(0, 30)}...`);
+                      zhTitle = await translateTextWithQwen(decodedTitle);
                       const viContentForTrans = decodedRawText.substring(0, 1500);
-                      zhContent = await translateTextUnified(viContentForTrans);
+                      zhContent = await translateTextWithQwen(viContentForTrans);
                       
                       if (zhTitle) console.log(`✅ 标题翻译完成`);
                       if (zhContent) console.log(`✅ 内容翻译完成`);
