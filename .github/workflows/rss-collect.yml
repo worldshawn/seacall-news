@@ -49,77 +49,66 @@ jobs:
           });
           
           const HF_API_TOKEN = process.env.HUGGINGFACE_API_TOKEN;
-          const enableTranslate = !!HF_API_TOKEN;
+          const enableHF = !!HF_API_TOKEN;
           
-          async function translateTextWithHF(text, from = 'vi', to = 'zh') {
-            if (!enableTranslate || !text || !text.trim()) return null;
-            
+          // 方案1：首选 LibreTranslate 公共实例（无需密钥）
+          async function translateTextWithLibre(text, from = 'vi', to = 'zh') {
+            if (!text || !text.trim()) return null;
             try {
-              // 先测试 API 连接是否正常
-              console.log('测试 HF API 连接...');
-              const testResp = await axios.post('https://api-inference.huggingface.co/models/gpt2', 
-                { inputs: 'Hello' }, 
-                {
-                  headers: {
-                    Authorization: 'Bearer ' + HF_API_TOKEN,
-                    'Content-Type': 'application/json'
-                  },
-                  timeout: 10000
-                }
-              );
-              console.log('✅ HF API 连接正常');
-            } catch (e) {
-              console.error('❌ HF API 连接失败:', e.response?.status, e.message);
-              console.log('⚠️ 跳过翻译，继续采集原文');
-              return null;
-            }
-            
-            // 使用简单的文本生成方式进行翻译
-            try {
-              console.log('尝试翻译:', text.substring(0, 50) + '...');
-              
-              // 使用 GPT-2 进行简单的翻译提示
-              const prompt = 'Translate this Vietnamese text to Chinese:\\n' + text.substring(0, 800) + '\\nChinese translation:';
-              
-              const resp = await axios.post('https://api-inference.huggingface.co/models/gpt2', {
-                inputs: prompt,
-                parameters: {
-                  max_length: 200,
-                  temperature: 0.3,
-                  do_sample: true
-                }
-              }, {
-                headers: {
-                  Authorization: 'Bearer ' + HF_API_TOKEN,
-                  'Content-Type': 'application/json'
-                },
+              const url = 'https://libretranslate.com/translate';
+              const payload = {
+                q: text.substring(0, 1800),
+                source: from,
+                target: to,
+                format: 'text'
+              };
+              const resp = await axios.post(url, payload, {
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 timeout: 30000
               });
-              
-              const data = resp.data;
-              if (Array.isArray(data) && data[0] && data[0].generated_text) {
-                const fullText = data[0].generated_text;
-                // 提取翻译部分（在 "Chinese translation:" 之后）
-                const translationStart = fullText.indexOf('Chinese translation:');
-                if (translationStart !== -1) {
-                  const translation = fullText.substring(translationStart + 'Chinese translation:'.length).trim();
-                  if (translation && translation.length > 10) {
-                    console.log('✅ 翻译成功');
-                    return translation.substring(0, 1000); // 限制长度
-                  }
-                }
-              }
-              
-              console.log('⚠️ 翻译结果不理想，跳过翻译');
+              const out = resp.data && (resp.data.translatedText || resp.data.translation || resp.data);
+              if (typeof out === 'string') return out;
+              if (out && out.translatedText) return out.translatedText;
               return null;
-              
             } catch (e) {
-              console.error('翻译失败:', e.response?.status, e.message);
-              if (e.response?.data) {
-                console.error('详细错误:', JSON.stringify(e.response.data).substring(0, 300));
-              }
+              console.error('LibreTranslate 翻译失败：', e.response?.status, e.message);
               return null;
             }
+          }
+          
+          // 方案2：备用 Hugging Face（若网络可达）
+          async function translateTextWithHF(text, from = 'vi', to = 'zh') {
+            if (!enableHF || !text || !text.trim()) return null;
+            const models = [
+              { name: 'Helsinki vi-zh', url: 'https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-vi-zh', payload: { inputs: text.substring(0, 1200) } },
+              { name: 'NLLB', url: 'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M', payload: { inputs: text.substring(0, 1000), parameters: { src_lang: 'vie_Latn', tgt_lang: 'zho_Hans' } } }
+            ];
+            for (const m of models) {
+              try {
+                console.log('尝试 HF 模型:', m.name);
+                const resp = await axios.post(m.url, m.payload, {
+                  headers: { Authorization: 'Bearer ' + HF_API_TOKEN, 'Content-Type': 'application/json' },
+                  timeout: 45000
+                });
+                const d = resp.data;
+                let result = null;
+                if (Array.isArray(d)) result = d[0]?.translation_text || d[0]?.generated_text;
+                else result = d?.generated_text || d?.translation_text || (typeof d === 'string' ? d : null);
+                if (result && result.trim()) return result.trim();
+              } catch (e) {
+                console.error(m.name + ' 失败：', e.response?.status, e.message);
+                if (e.response?.data) console.error('错误详情:', JSON.stringify(e.response.data).substring(0,200));
+              }
+            }
+            return null;
+          }
+          
+          // 统一翻译入口：先 Libre，再 HF
+          async function translateTextUnified(text) {
+            let zh = await translateTextWithLibre(text, 'vi', 'zh');
+            if (zh && zh.trim()) return zh;
+            zh = await translateTextWithHF(text, 'vi', 'zh');
+            return zh;
           }
           
           // RSS源配置
