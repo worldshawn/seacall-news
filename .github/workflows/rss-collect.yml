@@ -24,7 +24,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install rss-parser axios
+        run: npm install rss-parser axios entities
 
       - name: Collect RSS feeds
         env:
@@ -35,6 +35,7 @@ jobs:
           const fs = require('fs');
           const path = require('path');
           const axios = require('axios');
+          const { decode } = require('entities');
           
           const parser = new Parser({
             customFields: {
@@ -203,17 +204,16 @@ jobs:
           }
           
           // 生成Markdown内容（支持双语）
-          function generateMarkdownContent(item, feedSource, category, zhTitle, zhContent) {
+          function generateMarkdownContent(item, feedSource, category, zhTitle, zhContent, originalDecodedTitle, originalDecodedContent) {
             const date = new Date();
-            const slug = generateSlug(zhTitle || item.title);
+            const slug = generateSlug(zhTitle || originalDecodedTitle);
             const timePart = String(date.getHours()).padStart(2,'0') + String(date.getMinutes()).padStart(2,'0') + String(date.getSeconds()).padStart(2,'0');
             const filename = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0') + '-' + timePart + '-' + slug + '.md';
             
             const tags = getCategoryTags(category);
-            const content = item['content:encoded'] || item.content || item.contentSnippet || '';
-            const cleanContent = content.replace(/<[^>]*>/g, '').substring(0, 2000);
+            const cleanContent = originalDecodedContent.substring(0, 2000);
             
-            const titleEsc = (zhTitle || item.title).replace(/"/g, '\\"');
+            const titleEsc = (zhTitle || originalDecodedTitle).replace(/"/g, '\\"');
             const excerptBase = (zhContent || cleanContent).replace(/"/g, '\\"').substring(0, 200);
             
             const markdownContent = '---\n' +
@@ -259,21 +259,25 @@ jobs:
                 
                 for (const item of items) {
                   try {
-                    const rawText = (item['content:encoded'] || item.content || item.contentSnippet || '').replace(/<[^>]*>/g, ' ');
+                    // 解码HTML实体
+                    const decodedTitle = decode(item.title || '');
+                    const rawTextWithEntities = (item['content:encoded'] || item.content || item.contentSnippet || '').replace(/<[^>]*>/g, ' ');
+                    const decodedRawText = decode(rawTextWithEntities);
+
                     // 检查是否与投资相关
-                    if (isInvestmentRelated(item.title, rawText)) {
+                    if (isInvestmentRelated(decodedTitle, decodedRawText)) {
                       let zhTitle = null, zhContent = null;
                       
                       // 尝试翻译（先 LibreTranslate，再 HF）
-                      console.log(`🔄 正在翻译: ${item.title.substring(0, 30)}...`);
-                      zhTitle = await translateTextUnified(item.title);
-                      const viContentForTrans = rawText.substring(0, 1500);
+                      console.log(`🔄 正在翻译: ${decodedTitle.substring(0, 30)}...`);
+                      zhTitle = await translateTextUnified(decodedTitle);
+                      const viContentForTrans = decodedRawText.substring(0, 1500);
                       zhContent = await translateTextUnified(viContentForTrans);
                       
                       if (zhTitle) console.log(`✅ 标题翻译完成`);
                       if (zhContent) console.log(`✅ 内容翻译完成`);
                       
-                      const { filename, content } = generateMarkdownContent(item, feed.source, feed.category, zhTitle, zhContent);
+                      const { filename, content } = generateMarkdownContent(item, feed.source, feed.category, zhTitle, zhContent, decodedTitle, decodedRawText);
                       const filePath = path.join('_posts', filename);
                       
                       // 检查文件是否已存在
