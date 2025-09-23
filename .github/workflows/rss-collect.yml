@@ -24,7 +24,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install rss-parser openai
+        run: npm install rss-parser
 
       - name: Collect RSS feeds
         run: |
@@ -128,7 +128,8 @@ jobs:
           function generateMarkdownContent(item, feedSource, category) {
             const date = new Date();
             const slug = generateSlug(item.title);
-            const filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${slug}.md`;
+            const timePart = `${String(date.getHours()).padStart(2,'0')}${String(date.getMinutes()).padStart(2,'0')}${String(date.getSeconds()).padStart(2,'0')}`;
+            const filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${timePart}-${slug}.md`;
             
             const tags = getCategoryTags(category);
             const content = item['content:encoded'] || item.content || item.contentSnippet || '';
@@ -204,7 +205,7 @@ ${cleanContent}
                 for (const item of items) {
                   try {
                     // 检查是否与投资相关
-                    if (isInvestmentRelated(item.title, item.contentSnippet || '')) {
+                    if (isInvestmentRelated(item.title, item['content:encoded'] || item.content || item.contentSnippet || '')) {
                       const { filename, content } = generateMarkdownContent(item, feed.source, feed.category);
                       const filePath = path.join('_posts', filename);
                       
@@ -260,8 +261,7 @@ ${cleanContent}
 
       - name: Create summary
         run: |
-          echo "## RSS采集摘要" >> $GITHUB_STEP_SUMMARY
-          echo "- 📅 执行时间: $(date)" >> $GITHUB_STEP_SUMMARY
-          echo "- 📰 采集源: ${#feeds[@]} 个RSS源" >> $GITHUB_STEP_SUMMARY
-          echo "- 📝 新增文章: $(git diff HEAD~1 --name-only --diff-filter=A | grep '^_posts/' | wc -l) 篇" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔗 站点地址: [查看站点](https://news.seacall.com)" >> $GITHUB_STEP_SUMMARY
+          echo "## RSS Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Executed at (UTC): $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- New posts: $(git diff HEAD~1 --name-only --diff-filter=A | grep '^_posts/' | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Site: https://news.seacall.com" >> $GITHUB_STEP_SUMMARY
