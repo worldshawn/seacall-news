@@ -54,65 +54,72 @@ jobs:
           async function translateTextWithHF(text, from = 'vi', to = 'zh') {
             if (!enableTranslate || !text || !text.trim()) return null;
             
-            // 尝试多个可用的翻译模型
-            const models = [
-              {
-                name: 'T5 Base',
-                url: 'https://api-inference.huggingface.co/models/google/t5-base',
-                payload: { inputs: 'translate Vietnamese to Chinese: ' + text.substring(0, 1000) }
-              },
-              {
-                name: 'mT5 Small', 
-                url: 'https://api-inference.huggingface.co/models/google/mt5-small',
-                payload: { inputs: 'translate Vietnamese to Chinese: ' + text.substring(0, 1000) }
-              },
-              {
-                name: 'NLLB Distilled',
-                url: 'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M',
-                payload: {
-                  inputs: text.substring(0, 1200),
-                  parameters: { src_lang: 'vie_Latn', tgt_lang: 'zho_Hans' }
-                }
-              }
-            ];
-            
-            for (const model of models) {
-              try {
-                console.log('尝试模型:', model.name);
-                const resp = await axios.post(model.url, model.payload, {
+            try {
+              // 先测试 API 连接是否正常
+              console.log('测试 HF API 连接...');
+              const testResp = await axios.post('https://api-inference.huggingface.co/models/gpt2', 
+                { inputs: 'Hello' }, 
+                {
                   headers: {
                     Authorization: 'Bearer ' + HF_API_TOKEN,
                     'Content-Type': 'application/json'
                   },
-                  timeout: 60000
-                });
-                
-                const data = resp.data;
-                let result = null;
-                
-                if (Array.isArray(data)) {
-                  result = data[0] && (data[0].translation_text || data[0].generated_text);
-                } else if (typeof data === 'string') {
-                  result = data;
-                } else if (data && (data.generated_text || data.translation_text)) {
-                  result = data.generated_text || data.translation_text;
+                  timeout: 10000
                 }
-                
-                if (result && result.trim()) {
-                  console.log('✅ 翻译成功，使用模型:', model.name);
-                  return result.trim();
-                }
-              } catch (e) {
-                console.error(model.name + '翻译失败：', e.response?.status, e.response?.statusText);
-                if (e.response?.data) {
-                  console.error('错误详情:', JSON.stringify(e.response.data).substring(0, 200));
-                }
-                continue; // 尝试下一个模型
-              }
+              );
+              console.log('✅ HF API 连接正常');
+            } catch (e) {
+              console.error('❌ HF API 连接失败:', e.response?.status, e.message);
+              console.log('⚠️ 跳过翻译，继续采集原文');
+              return null;
             }
             
-            console.error('所有翻译模型都失败了');
-            return null;
+            // 使用简单的文本生成方式进行翻译
+            try {
+              console.log('尝试翻译:', text.substring(0, 50) + '...');
+              
+              // 使用 GPT-2 进行简单的翻译提示
+              const prompt = 'Translate this Vietnamese text to Chinese:\\n' + text.substring(0, 800) + '\\nChinese translation:';
+              
+              const resp = await axios.post('https://api-inference.huggingface.co/models/gpt2', {
+                inputs: prompt,
+                parameters: {
+                  max_length: 200,
+                  temperature: 0.3,
+                  do_sample: true
+                }
+              }, {
+                headers: {
+                  Authorization: 'Bearer ' + HF_API_TOKEN,
+                  'Content-Type': 'application/json'
+                },
+                timeout: 30000
+              });
+              
+              const data = resp.data;
+              if (Array.isArray(data) && data[0] && data[0].generated_text) {
+                const fullText = data[0].generated_text;
+                // 提取翻译部分（在 "Chinese translation:" 之后）
+                const translationStart = fullText.indexOf('Chinese translation:');
+                if (translationStart !== -1) {
+                  const translation = fullText.substring(translationStart + 'Chinese translation:'.length).trim();
+                  if (translation && translation.length > 10) {
+                    console.log('✅ 翻译成功');
+                    return translation.substring(0, 1000); // 限制长度
+                  }
+                }
+              }
+              
+              console.log('⚠️ 翻译结果不理想，跳过翻译');
+              return null;
+              
+            } catch (e) {
+              console.error('翻译失败:', e.response?.status, e.message);
+              if (e.response?.data) {
+                console.error('详细错误:', JSON.stringify(e.response.data).substring(0, 300));
+              }
+              return null;
+            }
           }
           
           // RSS源配置
