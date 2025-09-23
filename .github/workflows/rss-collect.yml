@@ -56,8 +56,14 @@ jobs:
             if (!text || !text.trim()) return null;
             try {
               const url = 'https://libretranslate.com/translate';
+              const textToTranslate = text.substring(0, 1800);
+              if (!textToTranslate.trim()) {
+                console.log('LibreTranslate: 待翻译文本为空，跳过。');
+                return null;
+              }
+              console.log(`LibreTranslate: 准备翻译 -> "${textToTranslate.substring(0, 50)}..."`);
               const payload = {
-                q: text.substring(0, 1800),
+                q: textToTranslate,
                 source: from,
                 target: to,
                 format: 'text'
