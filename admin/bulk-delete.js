@@ -1,6 +1,6 @@
 /**
- * 批量删除（仅前端交互版）- 使用外部CSS类，不含任何内联样式
- * 保存为：admin/bulk-delete-ui.js
+ * 批量删除（性能优化版、正确定位版）- 使用外部CSS类，不含任何内联样式
+ * 保存为：admin/bulk-delete-ui-v2.js
  *
  * 依赖样式类（需在 admin/bulk-delete.css 中定义或补充）：
  * - 工具栏：.bulk-delete-toolbar, .bulk-delete-controls, .bulk-select-all, .selected-count, .bulk-delete-btn
@@ -14,76 +14,47 @@
 
   let isInitialized = false;
   let toolbar = null;
-  let routeObserver = null;
   let listObserver = null;
+  let debounceTimer = null;
 
-  // 启动入口
-  function init() {
-    if (isInitialized) return;
-    isInitialized = true;
-
-    // 初次路由检查
-    checkAndAttach();
-
-    // 监听路由变化（Decap CMS前端为SPA）
-    routeObserver = new MutationObserver(() => {
-      checkAndAttach();
-    });
-    routeObserver.observe(document.body, { subtree: true, childList: true });
-  }
-
-  // 是否在集合列表页面
+  // 仅在集合列表页启用
   function isCollectionsPage() {
     const hash = window.location.hash || '';
     return hash.includes('#/collections/');
   }
 
-  // 主流程：在集合页挂载工具栏与复选框
-  function checkAndAttach() {
-    if (!isCollectionsPage()) {
-      teardown();
-      return;
-    }
-
-    // 查找列表容器
-    const container = findListContainer();
-    if (!container) return;
-
-    // 添加工具栏
-    ensureToolbar(container);
-
-    // 为现有条目补充复选框
-    addCheckboxesToEntries();
-
-    // 监听列表内容变化（翻页、搜索等）
-    if (!listObserver) {
-      listObserver = new MutationObserver(() => {
-        addCheckboxesToEntries();
-        updateToolbarState();
-      });
-      listObserver.observe(container, { childList: true, subtree: true });
-    }
+  // 精确获取集合页面主容器和列表容器
+  function getPageMain() {
+    // Decap CMS 常见结构
+    const page = document.querySelector('[data-testid="collection-page"]');
+    if (!page) return null;
+    // main可能在page内部或后代元素中
+    return page.querySelector('main') || page;
   }
 
-  // 查找 Decap CMS 集合列表容器
-  function findListContainer() {
-    const selectors = [
-      '[data-testid="collection-page"] main',
-      'main[role="main"]',
-      '.nc-collectionPage-main',
-      '[class*="CollectionPage"] [class*="main"]'
+  function getItemsContainer() {
+    // 列表容器常用的testid
+    const candidates = [
+      '[data-testid="collection-items"]',
+      '[class*="CollectionMain"] [class*="items"]',
+      '[class*="CollectionPage"] [class*="cards"]'
     ];
-    for (const s of selectors) {
-      const el = document.querySelector(s);
+    for (const sel of candidates) {
+      const el = document.querySelector(sel);
       if (el) return el;
     }
-    // 退路：可能是某些主题结构
-    return document.querySelector('main') || document.querySelector('[role="main"]');
+    // 退路：在主容器下查找包含卡片的父节点
+    const main = getPageMain();
+    if (!main) return null;
+    const firstCard = main.querySelector('[data-testid="collection-card"]');
+    return firstCard ? firstCard.parentElement : null;
   }
 
-  // 创建并插入工具栏（若不存在）
-  function ensureToolbar(container) {
+  // 插入工具栏（一次）
+  function ensureToolbar() {
     if (toolbar && document.body.contains(toolbar)) return;
+    const main = getPageMain();
+    if (!main) return;
 
     toolbar = document.createElement('div');
     toolbar.className = 'bulk-delete-toolbar';
@@ -97,67 +68,39 @@
         <button class="bulk-delete-btn" disabled>删除选中项</button>
       </div>
     `;
-
-    // 插入到列表容器顶部
-    container.insertBefore(toolbar, container.firstChild);
-
+    // 插到 main 的第一个元素之前，紧贴标题区域下方
+    main.insertBefore(toolbar, main.firstChild);
     bindToolbarEvents();
     updateToolbarState();
   }
 
-  // 为列表中的每个条目添加选择复选框
+  // 为卡片添加复选框（只处理 data-testid="collection-card"）
   function addCheckboxesToEntries() {
-    const entries = findEntries();
-    entries.forEach((entry, index) => {
-      if (entry.classList.contains('has-bulk-checkbox')) return;
-
+    const cards = Array.from(document.querySelectorAll('[data-testid="collection-card"]'));
+    cards.forEach((card, index) => {
+      if (card.classList.contains('has-bulk-checkbox')) return;
       const label = document.createElement('label');
       label.className = 'bulk-checkbox';
       label.innerHTML = `
         <input type="checkbox" class="entry-checkbox" data-entry-id="${index}" />
         <span class="checkmark"></span>
       `;
-      entry.classList.add('has-bulk-checkbox');
-      entry.appendChild(label);
+      card.classList.add('has-bulk-checkbox');
+      // 作为卡片的第一个子元素（靠左上角的区域）
+      card.insertBefore(label, card.firstChild);
 
       const cb = label.querySelector('.entry-checkbox');
       cb.addEventListener('change', () => updateToolbarState());
     });
   }
 
-  // 查找条目卡片
-  function findEntries() {
-    // 常见卡片选择器
-    const selectors = [
-      '[data-testid="collection-card"]',
-      '[class*="EntryCard"]',
-      '[class*="entry-card"]',
-      'article'
-    ];
-    for (const s of selectors) {
-      const list = Array.from(document.querySelectorAll(s));
-      if (list.length) return list;
-    }
-    // 退路：基于结构与文本的朴素筛选
-    const candidates = Array.from(document.querySelectorAll('div'))
-      .filter((div) => {
-        if (div.classList.contains('has-bulk-checkbox')) return false;
-        const titleEl = div.querySelector('h1,h2,h3,h4,h5,h6');
-        const text = (div.textContent || '').trim();
-        const hasTitle = !!titleEl || text.length > 20;
-        return hasTitle && text.length < 1200;
-      });
-    return candidates;
-  }
-
-  // 绑定工具栏事件
   function bindToolbarEvents() {
     const selectAll = toolbar.querySelector('#bulkSelectAll');
     const deleteBtn = toolbar.querySelector('.bulk-delete-btn');
 
     selectAll.addEventListener('change', (e) => {
       const checked = e.target.checked;
-      document.querySelectorAll('.entry-checkbox').forEach((cb) => {
+      document.querySelectorAll('[data-testid="collection-card"] .entry-checkbox').forEach((cb) => {
         cb.checked = checked;
       });
       updateToolbarState();
@@ -170,26 +113,10 @@
     });
   }
 
-  // 获取被选中的条目信息（元素与标题）
-  function getSelectedItems() {
-    const selectedCheckboxes = Array.from(document.querySelectorAll('.entry-checkbox:checked'));
-    return selectedCheckboxes.map((cb) => {
-      const card = cb.closest('[data-testid="collection-card"]')
-        || cb.closest('[class*="EntryCard"]')
-        || cb.closest('article')
-        || cb.closest('div');
-      const titleEl = card?.querySelector('h1,h2,h3,h4,h5,h6,[class*="title"], .card-title');
-      return {
-        element: card,
-        title: titleEl ? titleEl.textContent.trim() : '未知标题'
-      };
-    }).filter(item => !!item.element);
-  }
-
-  // 更新工具栏计数与按钮状态
+  // 高效更新状态
   function updateToolbarState() {
     if (!toolbar) return;
-    const count = document.querySelectorAll('.entry-checkbox:checked').length;
+    const count = document.querySelectorAll('[data-testid="collection-card"] .entry-checkbox:checked').length;
     const countEl = toolbar.querySelector('.selected-count strong');
     const deleteBtn = toolbar.querySelector('.bulk-delete-btn');
     if (countEl) countEl.textContent = String(count);
@@ -199,7 +126,19 @@
     }
   }
 
-  // 显示删除确认弹窗（仅前端标记删除）
+  // 仅从卡片抓取标题
+  function getSelectedItems() {
+    const selectedCheckboxes = Array.from(document.querySelectorAll('[data-testid="collection-card"] .entry-checkbox:checked'));
+    return selectedCheckboxes.map((cb) => {
+      const card = cb.closest('[data-testid="collection-card"]');
+      const titleEl = card?.querySelector('h1,h2,h3,h4,h5,h6,[class*="title"], .card-title');
+      return {
+        element: card,
+        title: titleEl ? titleEl.textContent.trim() : '未知标题'
+      };
+    }).filter(item => !!item.element);
+  }
+
   function showDeleteConfirmation(items) {
     const modal = document.createElement('div');
     modal.className = 'bulk-delete-modal';
@@ -257,20 +196,16 @@
     setTimeout(() => input.focus(), 50);
   }
 
-  // 执行删除（仅前端移除卡片）
   function performBulkDelete(items) {
     items.forEach(({ element }) => {
       if (!element) return;
-      // 移除元素节点（动画交由CSS控制，如需的话）
       element.parentNode && element.parentNode.removeChild(element);
     });
-    // 清空已选状态
-    document.querySelectorAll('.entry-checkbox:checked').forEach(cb => { cb.checked = false; });
+    document.querySelectorAll('[data-testid="collection-card"] .entry-checkbox:checked').forEach(cb => { cb.checked = false; });
     updateToolbarState();
     showSuccessMessage(`已删除 ${items.length} 篇文章`);
   }
 
-  // 成功提示（使用CSS类）
   function showSuccessMessage(message) {
     const toast = document.createElement('div');
     toast.className = 'bulk-delete-toast success';
@@ -281,36 +216,13 @@
       </div>
     `;
     document.body.appendChild(toast);
-    // 进入动画
     requestAnimationFrame(() => toast.classList.add('show'));
-    // 自动关闭
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => { if (document.body.contains(toast)) document.body.removeChild(toast); }, 300);
     }, 2500);
   }
 
-  // 清理（离开集合页）
-  function teardown() {
-    if (toolbar && toolbar.parentNode) {
-      toolbar.parentNode.removeChild(toolbar);
-    }
-    toolbar = null;
-
-    // 可选：移除所有checkbox（避免残留）
-    document.querySelectorAll('.has-bulk-checkbox').forEach((entry) => {
-      const cb = entry.querySelector('.bulk-checkbox');
-      cb && cb.parentNode && cb.parentNode.removeChild(cb);
-      entry.classList.remove('has-bulk-checkbox');
-    });
-
-    if (listObserver) {
-      listObserver.disconnect();
-      listObserver = null;
-    }
-  }
-
-  // 简单转义
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -318,7 +230,66 @@
       .replace(/>/g, '&gt;');
   }
 
-  // 文档就绪后启动
+  // 仅监听列表容器变化，并做去抖，避免卡顿
+  function attachListObserver() {
+    const container = getItemsContainer();
+    if (!container) return;
+    if (listObserver) listObserver.disconnect();
+
+    listObserver = new MutationObserver(() => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        addCheckboxesToEntries();
+        updateToolbarState();
+      }, 150);
+    });
+    listObserver.observe(container, { childList: true, subtree: true });
+  }
+
+  // 主流程入口
+  function run() {
+    if (!isCollectionsPage()) {
+      teardown();
+      return;
+    }
+    ensureToolbar();
+    addCheckboxesToEntries();
+    attachListObserver();
+  }
+
+  function teardown() {
+    if (toolbar && toolbar.parentNode) {
+      toolbar.parentNode.removeChild(toolbar);
+    }
+    toolbar = null;
+    document.querySelectorAll('[data-testid="collection-card"].has-bulk-checkbox').forEach((card) => {
+      const label = card.querySelector('.bulk-checkbox');
+      label && label.parentNode && label.parentNode.removeChild(label);
+      card.classList.remove('has-bulk-checkbox');
+    });
+    if (listObserver) {
+      listObserver.disconnect();
+      listObserver = null;
+    }
+  }
+
+  // 初始化：仅在路由变化或DOMContentLoaded时运行（不观察整个body）
+  function init() {
+    if (isInitialized) {
+      run();
+      return;
+    }
+    isInitialized = true;
+
+    // 初次运行
+    run();
+
+    // 精简的路由监听：只在hash变化时触发
+    window.addEventListener('hashchange', () => {
+      run();
+    });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
