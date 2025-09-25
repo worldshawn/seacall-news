@@ -112,6 +112,7 @@
     debugConsoleErrors();
     debugAdminDetection();
     console.log('✅ 调试检查完成');
+    console.log('💡 如果批量删除功能正常工作，可以注释掉调试脚本');
   }
 
   // 立即运行调试检查

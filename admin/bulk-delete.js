@@ -16,6 +16,7 @@
   let toolbar = null;
   let listObserver = null;
   let debounceTimer = null;
+  let isRunning = false; // 防止重复执行
 
   // 检测是否在管理页面（更宽松的检测）
   function isAdminPage() {
@@ -120,16 +121,16 @@
     updateToolbarState();
   }
 
-  // 为卡片添加复选框（支持多种卡片类型）
+  // 为卡片添加复选框（更精确的选择器）
   function addCheckboxesToEntries() {
-    // 尝试多种可能的卡片选择器
+    // 更精确的卡片选择器，避免选择侧边栏卡片
     const cardSelectors = [
       '[data-testid="collection-card"]',
-      '[class*="card"]',
-      '[class*="entry"]',
-      'article',
-      '.post',
-      '[class*="item"]'
+      'main [class*="card"]:not([class*="Sidebar"])', // 排除侧边栏卡片
+      'main [class*="entry"]',
+      'main article',
+      'main .post',
+      'main [class*="item"]'
     ];
     
     let cards = [];
@@ -326,6 +327,11 @@
 
   // 主流程入口
   function run() {
+    if (isRunning) {
+      console.log('脚本正在运行中，跳过重复执行');
+      return;
+    }
+    
     console.log('批量删除脚本开始运行...');
     
     if (!isAdminPage()) {
@@ -335,12 +341,20 @@
     }
     
     console.log('在管理页面，开始初始化批量删除功能');
+    isRunning = true;
     
     // 延迟执行，确保CMS完全加载
     setTimeout(() => {
-      ensureToolbar();
-      addCheckboxesToEntries();
-      attachListObserver();
+      try {
+        ensureToolbar();
+        addCheckboxesToEntries();
+        attachListObserver();
+        console.log('批量删除功能初始化完成');
+      } catch (error) {
+        console.error('批量删除功能初始化失败:', error);
+      } finally {
+        isRunning = false;
+      }
     }, 500);
   }
 
@@ -379,10 +393,13 @@
       run();
     });
     
-    // 监听页面变化（用于SPA应用）
+    // 监听页面变化（用于SPA应用）- 优化版本
+    let lastCardCount = 0;
     const observer = new MutationObserver(() => {
-      if (document.querySelector('.cms') || document.querySelector('#nc-root')) {
-        console.log('检测到CMS界面变化，重新初始化');
+      const currentCardCount = document.querySelectorAll('main [class*="card"]:not([class*="Sidebar"])').length;
+      if (currentCardCount !== lastCardCount && currentCardCount > 0) {
+        console.log('检测到卡片数量变化，重新初始化', lastCardCount, '->', currentCardCount);
+        lastCardCount = currentCardCount;
         run();
       }
     });
