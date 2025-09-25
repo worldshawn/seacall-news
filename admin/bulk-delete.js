@@ -17,37 +17,83 @@
   let listObserver = null;
   let debounceTimer = null;
 
-  // 仅在集合列表页启用
-  function isCollectionsPage() {
+  // 检测是否在管理页面（更宽松的检测）
+  function isAdminPage() {
     const hash = window.location.hash || '';
-    return hash.includes('#/collections/');
+    const pathname = window.location.pathname || '';
+    // 检查是否在admin页面或包含collections的路径
+    return pathname.includes('/admin') || 
+           hash.includes('#/collections/') || 
+           hash.includes('#/') ||
+           document.querySelector('[data-testid*="collection"]') ||
+           document.querySelector('.cms') ||
+           document.querySelector('#nc-root');
   }
 
-  // 精确获取集合页面主容器和列表容器
+  // 获取页面主容器（支持多种CMS结构）
   function getPageMain() {
-    // Decap CMS 常见结构
-    const page = document.querySelector('[data-testid="collection-page"]');
-    if (!page) return null;
-    // main可能在page内部或后代元素中
-    return page.querySelector('main') || page;
+    // 尝试多种可能的容器选择器
+    const candidates = [
+      '[data-testid="collection-page"]',
+      '.cms',
+      '#nc-root',
+      '[class*="CollectionPage"]',
+      '[class*="CollectionMain"]',
+      'main',
+      '.main-content'
+    ];
+    
+    for (const selector of candidates) {
+      const element = document.querySelector(selector);
+      if (element) {
+        console.log('找到页面容器:', selector, element);
+        return element;
+      }
+    }
+    
+    // 如果都没找到，返回body
+    console.log('未找到特定容器，使用body');
+    return document.body;
   }
 
   function getItemsContainer() {
-    // 列表容器常用的testid
+    // 列表容器常用的选择器
     const candidates = [
       '[data-testid="collection-items"]',
       '[class*="CollectionMain"] [class*="items"]',
-      '[class*="CollectionPage"] [class*="cards"]'
+      '[class*="CollectionPage"] [class*="cards"]',
+      '[class*="collection"] [class*="list"]',
+      '[class*="entries"]',
+      '.cms .entries',
+      '#nc-root .entries'
     ];
+    
     for (const sel of candidates) {
       const el = document.querySelector(sel);
-      if (el) return el;
+      if (el) {
+        console.log('找到列表容器:', sel, el);
+        return el;
+      }
     }
+    
     // 退路：在主容器下查找包含卡片的父节点
     const main = getPageMain();
     if (!main) return null;
-    const firstCard = main.querySelector('[data-testid="collection-card"]');
-    return firstCard ? firstCard.parentElement : null;
+    
+    // 尝试找到包含多个条目的容器
+    const firstCard = main.querySelector('[data-testid="collection-card"]') || 
+                     main.querySelector('[class*="card"]') ||
+                     main.querySelector('[class*="entry"]') ||
+                     main.querySelector('article') ||
+                     main.querySelector('.post');
+    
+    if (firstCard) {
+      console.log('通过第一个卡片找到容器:', firstCard.parentElement);
+      return firstCard.parentElement;
+    }
+    
+    console.log('未找到列表容器，使用主容器');
+    return main;
   }
 
   // 插入工具栏（一次）
@@ -74,11 +120,41 @@
     updateToolbarState();
   }
 
-  // 为卡片添加复选框（只处理 data-testid="collection-card"）
+  // 为卡片添加复选框（支持多种卡片类型）
   function addCheckboxesToEntries() {
-    const cards = Array.from(document.querySelectorAll('[data-testid="collection-card"]'));
+    // 尝试多种可能的卡片选择器
+    const cardSelectors = [
+      '[data-testid="collection-card"]',
+      '[class*="card"]',
+      '[class*="entry"]',
+      'article',
+      '.post',
+      '[class*="item"]'
+    ];
+    
+    let cards = [];
+    for (const selector of cardSelectors) {
+      const found = document.querySelectorAll(selector);
+      if (found.length > 0) {
+        cards = Array.from(found);
+        console.log('找到卡片:', selector, cards.length);
+        break;
+      }
+    }
+    
+    if (cards.length === 0) {
+      console.log('未找到任何卡片');
+      return;
+    }
+    
     cards.forEach((card, index) => {
       if (card.classList.contains('has-bulk-checkbox')) return;
+      
+      // 确保卡片有相对定位
+      if (getComputedStyle(card).position === 'static') {
+        card.style.position = 'relative';
+      }
+      
       const label = document.createElement('label');
       label.className = 'bulk-checkbox';
       label.innerHTML = `
@@ -92,6 +168,8 @@
       const cb = label.querySelector('.entry-checkbox');
       cb.addEventListener('change', () => updateToolbarState());
     });
+    
+    console.log(`为 ${cards.length} 个卡片添加了复选框`);
   }
 
   function bindToolbarEvents() {
@@ -248,13 +326,22 @@
 
   // 主流程入口
   function run() {
-    if (!isCollectionsPage()) {
+    console.log('批量删除脚本开始运行...');
+    
+    if (!isAdminPage()) {
+      console.log('不在管理页面，跳过初始化');
       teardown();
       return;
     }
-    ensureToolbar();
-    addCheckboxesToEntries();
-    attachListObserver();
+    
+    console.log('在管理页面，开始初始化批量删除功能');
+    
+    // 延迟执行，确保CMS完全加载
+    setTimeout(() => {
+      ensureToolbar();
+      addCheckboxesToEntries();
+      attachListObserver();
+    }, 500);
   }
 
   function teardown() {
@@ -273,7 +360,7 @@
     }
   }
 
-  // 初始化：仅在路由变化或DOMContentLoaded时运行（不观察整个body）
+  // 初始化：支持多种触发方式
   function init() {
     if (isInitialized) {
       run();
@@ -281,12 +368,28 @@
     }
     isInitialized = true;
 
+    console.log('批量删除脚本初始化...');
+
     // 初次运行
     run();
 
-    // 精简的路由监听：只在hash变化时触发
+    // 监听路由变化
     window.addEventListener('hashchange', () => {
+      console.log('路由变化，重新初始化');
       run();
+    });
+    
+    // 监听页面变化（用于SPA应用）
+    const observer = new MutationObserver(() => {
+      if (document.querySelector('.cms') || document.querySelector('#nc-root')) {
+        console.log('检测到CMS界面变化，重新初始化');
+        run();
+      }
+    });
+    
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true 
     });
   }
 
