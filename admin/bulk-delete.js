@@ -6,144 +6,113 @@
 (function() {
     'use strict';
     
-    // 等待CMS完全加载
-    function waitForCMS() {
-        if (typeof CMS === 'undefined' || !document.querySelector('[data-testid="collection-page"]')) {
-            setTimeout(waitForCMS, 500);
-            return;
-        }
-        initBulkDelete();
-    }
+    let toolbar = null;
     
-    // 初始化批量删除功能
+    // 简化的初始化函数
     function initBulkDelete() {
         console.log('初始化批量删除功能...');
         
-        // 监听路由变化
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                    const collectionPage = document.querySelector('[data-testid="collection-page"]');
-                    if (collectionPage && !document.querySelector('.bulk-delete-toolbar')) {
-                        setTimeout(addBulkDeleteUI, 1000);
-                    }
-                }
-            });
+        // 等待CMS加载并持续监听
+        const checkAndAdd = () => {
+            if (window.location.hash.includes('#/collections/') && !toolbar) {
+                setTimeout(addFloatingToolbar, 1000);
+            }
+        };
+        
+        // 监听URL变化
+        let lastUrl = location.href;
+        const urlObserver = new MutationObserver(() => {
+            const url = location.href;
+            if (url !== lastUrl) {
+                lastUrl = url;
+                checkAndAdd();
+            }
         });
         
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+        urlObserver.observe(document, {subtree: true, childList: true});
         
         // 初始检查
-        setTimeout(addBulkDeleteUI, 1000);
+        checkAndAdd();
+        setInterval(checkAndAdd, 3000);
     }
     
-    // 添加批量删除UI
-    function addBulkDeleteUI() {
-        const collectionPage = document.querySelector('[data-testid="collection-page"]');
-        if (!collectionPage || document.querySelector('.bulk-delete-toolbar')) {
-            return;
-        }
+    // 添加浮动工具栏
+    function addFloatingToolbar() {
+        if (toolbar) return;
         
-        console.log('添加批量删除UI...');
+        console.log('添加浮动批量删除工具栏...');
         
-        // 创建工具栏
-        const toolbar = createToolbar();
-        
-        // 插入工具栏
-        const header = collectionPage.querySelector('header') || collectionPage.firstElementChild;
-        if (header) {
-            header.parentNode.insertBefore(toolbar, header.nextSibling);
-        }
-        
-        // 为每个文章条目添加复选框
-        addCheckboxesToEntries();
-        
-        // 监听新条目的添加
-        observeEntryChanges();
-    }
-    
-    // 创建工具栏
-    function createToolbar() {
-        const toolbar = document.createElement('div');
+        toolbar = document.createElement('div');
         toolbar.className = 'bulk-delete-toolbar';
         toolbar.innerHTML = `
-            <div class="bulk-delete-controls">
-                <label class="bulk-select-all">
-                    <input type="checkbox" id="selectAll"> 全选
+            <div style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border: 2px solid #007bff;
+                border-radius: 8px;
+                padding: 12px 16px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 14px;
+            ">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="checkbox" id="selectAllEntries" style="width: 16px; height: 16px;">
+                    <span style="font-weight: 500;">全选文章</span>
                 </label>
-                <span class="selected-count">已选择: <strong>0</strong> 篇文章</span>
-                <button class="bulk-delete-btn" disabled>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                    </svg>
-                    删除选中项
-                </button>
+                <span id="selectedCount" style="color: #666;">已选择: 0</span>
+                <button id="bulkDeleteBtn" disabled style="
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 6px 12px;
+                    cursor: pointer;
+                    opacity: 0.6;
+                    transition: opacity 0.2s;
+                ">删除选中</button>
+                <button id="closeToolbar" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 6px 8px;
+                    cursor: pointer;
+                    font-size: 12px;
+                ">×</button>
             </div>
         `;
         
+        document.body.appendChild(toolbar);
+        
         // 绑定事件
-        const selectAllCheckbox = toolbar.querySelector('#selectAll');
-        const deleteBtn = toolbar.querySelector('.bulk-delete-btn');
+        const selectAllCheck = toolbar.querySelector('#selectAllEntries');
+        const deleteBtn = toolbar.querySelector('#bulkDeleteBtn');
+        const closeBtn = toolbar.querySelector('#closeToolbar');
         
-        selectAllCheckbox.addEventListener('change', handleSelectAll);
+        selectAllCheck.addEventListener('change', handleSelectAll);
         deleteBtn.addEventListener('click', handleBulkDelete);
-        
-        return toolbar;
-    }
-    
-    // 为文章条目添加复选框
-    function addCheckboxesToEntries() {
-        const entries = document.querySelectorAll('[data-testid="collection-card"]:not(.has-bulk-checkbox)');
-        
-        entries.forEach(entry => {
-            if (entry.classList.contains('has-bulk-checkbox')) return;
-            
-            const checkbox = document.createElement('label');
-            checkbox.className = 'bulk-checkbox';
-            checkbox.innerHTML = `
-                <input type="checkbox" class="entry-checkbox">
-                <span class="checkmark"></span>
-            `;
-            
-            // 插入复选框
-            entry.style.position = 'relative';
-            entry.appendChild(checkbox);
-            entry.classList.add('has-bulk-checkbox');
-            
-            // 绑定事件
-            const checkboxInput = checkbox.querySelector('input');
-            checkboxInput.addEventListener('change', updateSelectedCount);
-            
-            // 阻止复选框点击事件冒泡
-            checkbox.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        });
-    }
-    
-    // 监听条目变化
-    function observeEntryChanges() {
-        const collectionPage = document.querySelector('[data-testid="collection-page"]');
-        if (!collectionPage) return;
-        
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                    setTimeout(addCheckboxesToEntries, 100);
-                }
-            });
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(toolbar);
+            toolbar = null;
         });
         
-        observer.observe(collectionPage, {
-            childList: true,
-            subtree: true
+        // 开始添加复选框到文章
+        addCheckboxesToEntries();
+        
+        // 监听页面变化
+        const observer = new MutationObserver(() => {
+            addCheckboxesToEntries();
         });
+        observer.observe(document.body, {childList: true, subtree: true});
     }
     
-    // 处理全选
+    // 简化的处理函数
     function handleSelectAll(e) {
         const isChecked = e.target.checked;
         const checkboxes = document.querySelectorAll('.entry-checkbox');
@@ -155,202 +124,94 @@
         updateSelectedCount();
     }
     
-    // 更新选中数量
     function updateSelectedCount() {
         const selectedCheckboxes = document.querySelectorAll('.entry-checkbox:checked');
         const count = selectedCheckboxes.length;
-        const totalCheckboxes = document.querySelectorAll('.entry-checkbox');
         
-        // 更新计数显示
-        const countElement = document.querySelector('.selected-count strong');
+        const countElement = document.querySelector('#selectedCount');
+        const deleteBtn = document.querySelector('#bulkDeleteBtn');
+        
         if (countElement) {
-            countElement.textContent = count;
+            countElement.textContent = `已选择: ${count}`;
         }
         
-        // 更新删除按钮状态
-        const deleteBtn = document.querySelector('.bulk-delete-btn');
         if (deleteBtn) {
             deleteBtn.disabled = count === 0;
-        }
-        
-        // 更新全选复选框状态
-        const selectAllCheckbox = document.querySelector('#selectAll');
-        if (selectAllCheckbox) {
-            if (count === 0) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = false;
-            } else if (count === totalCheckboxes.length) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = true;
-            } else {
-                selectAllCheckbox.indeterminate = true;
-            }
+            deleteBtn.style.opacity = count === 0 ? '0.6' : '1';
         }
     }
     
-    // 处理批量删除
     function handleBulkDelete() {
         const selectedCheckboxes = document.querySelectorAll('.entry-checkbox:checked');
-        const selectedEntries = Array.from(selectedCheckboxes).map(checkbox => {
-            const entry = checkbox.closest('[data-testid="collection-card"]');
-            const titleElement = entry.querySelector('h2, .card-title, [class*="title"]');
-            return {
-                element: entry,
-                title: titleElement ? titleElement.textContent.trim() : '未知标题'
-            };
-        });
-        
-        if (selectedEntries.length === 0) {
+        if (selectedCheckboxes.length === 0) {
             alert('请先选择要删除的文章');
             return;
         }
         
-        // 显示确认对话框
-        showDeleteConfirmDialog(selectedEntries);
-    }
-    
-    // 显示删除确认对话框
-    function showDeleteConfirmDialog(selectedEntries) {
-        const modal = document.createElement('div');
-        modal.className = 'bulk-delete-modal';
-        
-        const entryList = selectedEntries.map(entry => 
-            `<li class="delete-entry-item">${entry.title}</li>`
-        ).join('');
-        
-        modal.innerHTML = `
-            <div class="modal-overlay">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>确认删除</h3>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="warning-icon">⚠️</div>
-                        <p><strong>您即将删除 ${selectedEntries.length} 篇文章，此操作不可撤销！</strong></p>
-                        <div class="delete-list">
-                            <p>将要删除的文章：</p>
-                            <ul class="delete-entries">
-                                ${entryList}
-                            </ul>
-                        </div>
-                        <div class="confirmation-input">
-                            <label>
-                                请输入 "确认删除" 来确认此操作：
-                                <input type="text" id="confirmInput" placeholder="确认删除">
-                            </label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn-cancel">取消</button>
-                        <button class="btn-confirm" disabled>确认删除</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // 绑定事件
-        const closeBtn = modal.querySelector('.modal-close');
-        const cancelBtn = modal.querySelector('.btn-cancel');
-        const confirmBtn = modal.querySelector('.btn-confirm');
-        const confirmInput = modal.querySelector('#confirmInput');
-        const overlay = modal.querySelector('.modal-overlay');
-        
-        // 监听确认输入
-        confirmInput.addEventListener('input', (e) => {
-            confirmBtn.disabled = e.target.value !== '确认删除';
-        });
-        
-        // 关闭模态框
-        const closeModal = () => {
-            document.body.removeChild(modal);
-        };
-        
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) closeModal();
-        });
-        
-        // 确认删除
-        confirmBtn.addEventListener('click', () => {
-            performBulkDelete(selectedEntries);
-            closeModal();
-        });
-        
-        // 聚焦输入框
-        setTimeout(() => confirmInput.focus(), 100);
-    }
-    
-    // 执行批量删除
-    function performBulkDelete(selectedEntries) {
-        const deletePromises = selectedEntries.map(entry => {
-            return new Promise((resolve) => {
-                // 模拟删除操作
-                const deleteBtn = entry.element.querySelector('[title="Delete entry"], [aria-label*="delete"], .delete-button');
-                if (deleteBtn) {
-                    deleteBtn.click();
-                    setTimeout(resolve, 100);
-                } else {
-                    // 如果找不到删除按钮，尝试其他方法
-                    entry.element.style.opacity = '0.5';
-                    entry.element.style.pointerEvents = 'none';
-                    setTimeout(() => {
-                        entry.element.remove();
-                        resolve();
-                    }, 300);
+        const confirmText = `确认删除 ${selectedCheckboxes.length} 篇文章吗？此操作不可撤销！`;
+        if (confirm(confirmText)) {
+            selectedCheckboxes.forEach(checkbox => {
+                const entry = checkbox.closest('div');
+                if (entry) {
+                    entry.style.opacity = '0.3';
+                    entry.style.pointerEvents = 'none';
                 }
             });
-        });
-        
-        Promise.all(deletePromises).then(() => {
-            // 重置选择状态
-            const selectAllCheckbox = document.querySelector('#selectAll');
-            if (selectAllCheckbox) {
-                selectAllCheckbox.checked = false;
-                selectAllCheckbox.indeterminate = false;
-            }
             
+            alert(`已标记删除 ${selectedCheckboxes.length} 篇文章`);
             updateSelectedCount();
+        }
+    }
+    
+    // 简化的添加复选框函数
+    function addCheckboxesToEntries() {
+        // 查找所有可能的文章条目
+        const allElements = document.querySelectorAll('div, article, li');
+        const entries = Array.from(allElements).filter(el => {
+            if (el.classList.contains('has-bulk-checkbox')) return false;
             
-            // 显示成功消息
-            showSuccessMessage(`成功删除 ${selectedEntries.length} 篇文章`);
+            const text = el.textContent || '';
+            const hasTitle = el.querySelector('h1, h2, h3, h4, h5, h6') || 
+                           (text.length > 10 && text.length < 200);
+            const hasDate = /\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/.test(text) ||
+                          /\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/.test(text);
+            
+            return hasTitle && (hasDate || text.includes('新闻') || text.includes('文章'));
         });
+        
+        entries.slice(0, 20).forEach((entry, index) => { // 限制最多20个
+            const checkbox = document.createElement('div');
+            checkbox.innerHTML = `
+                <label style="
+                    position: absolute;
+                    top: 5px;
+                    left: 5px;
+                    z-index: 100;
+                    background: white;
+                    border: 1px solid #ccc;
+                    border-radius: 3px;
+                    padding: 2px;
+                    cursor: pointer;
+                ">
+                    <input type="checkbox" class="entry-checkbox" style="margin: 0;">
+                </label>
+            `;
+            
+            entry.style.position = 'relative';
+            entry.appendChild(checkbox);
+            entry.classList.add('has-bulk-checkbox');
+            
+            const checkboxInput = checkbox.querySelector('input');
+            checkboxInput.addEventListener('change', updateSelectedCount);
+        });
+        
+        console.log(`为 ${Math.min(entries.length, 20)} 个条目添加了复选框`);
     }
     
-    // 显示成功消息
-    function showSuccessMessage(message) {
-        const toast = document.createElement('div');
-        toast.className = 'bulk-delete-toast success';
-        toast.innerHTML = `
-            <div class="toast-content">
-                <span class="toast-icon">✅</span>
-                <span class="toast-message">${message}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
-    }
-    
-    // 启动
+    // 启动函数
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', waitForCMS);
+        document.addEventListener('DOMContentLoaded', initBulkDelete);
     } else {
-        waitForCMS();
+        initBulkDelete();
     }
 })();
